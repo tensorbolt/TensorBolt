@@ -49,8 +49,11 @@
 
 #include <stdint.h>
 
-#include <tb_tensor.h>
+#include <ndarray.h>
 #include <tb_errors.h>
+
+#include "map.h"
+#include "vec.h"
 
 
 #define TB_ASSERT_LOG
@@ -64,6 +67,12 @@
 #else
 #error Please define an assertion policy.
 #endif
+
+
+/**
+ *\brief Creates the type cgnode_vec_t for storing all nodes in a graph, for internal use.
+ */
+typedef vec_t(void*) TBNode_Vec;
 
 /**
  * \brief advanced assertion strategy for debugging purposes
@@ -79,7 +88,7 @@
 void tb_assert(int cond, const char * rawcond, const char * fmt, ...);
 
 /**
- * List of type of nodes supported
+ * \brief List of the available node types
  */
 typedef enum TBNodeType{
     TBNT_VARIABLE = 0,             /**< Variable node, usually used as input. */
@@ -88,13 +97,15 @@ typedef enum TBNodeType{
 	TBNT_BINARY_OPERATION,         /**< Binary operation. */
 	TBNT_UNARY_OPERATION,          /**< Unary operation. */
 	TBNT_AXIS_BOUND_OPERATION,     /**< Axis-bounded operations i.e operations that are applied over a specific axis or dimension. */
-	TBNT_CROSS_ENTROPY_LOSS_FUNC,  /**< Cross Entropy loss function */
-};
+}TBNodeType;
+
+#define MAX_NODE_TYPE TBNT_AXIS_BOUND_OPERATION
 
 /**
- * Node data structure
+ * \brief Node data structure
  */
 typedef struct TBNode {
+	TBNodeType type;               /**< Node type */
     void* nodePtr;                 /**< Pointer to the actual node structure */
     uint8_t calc_grad;             /**< Boolean flag indicating that the gradient will be calculated for this node. If it is set to false, its child will also be set to false */
     struct TBResultNode* result;   /**< Pointer to the actual result of the node, in order to improve performance . */
@@ -102,15 +113,30 @@ typedef struct TBNode {
 }TBNode;
 
 /**
- * Result of an operation
+ * \brief Result of an operation
  */
 typedef struct TBResultNode {
-	TBTensor value;                /**< Tensor value */
+	NDArray* value;                /**< Tensor value */
 	TBError* error;                /**< Error pointer in case of exception during the execution */
 }TBResultNode;
 
+/**
+ * \brief Graph data structure
+ */
 typedef struct TBGraph {
-
+	char* name;                    /**< Graph name */
+	TBNode* root;                  /**< Graph Root Node */
+	map_t(TBNode*) vars;           /**< variables, a map from char* => TBNode* */
+	TBNode_Vec nodes;              /**< Lookup table to free nodes later on */
 }TBGraph;
+
+
+/**
+ * \brief paire of node and names passed to nested graphs
+ */
+typedef struct TBGraphNodeParam {
+	struct TBNode* node;           /**< Node pointer to be bounded with the next variable name */
+	char* var_name;                /**< Variable name to be bounded with the previous node */
+}TBGraphNodeParam;
 
 #endif

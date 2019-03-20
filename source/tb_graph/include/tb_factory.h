@@ -38,7 +38,7 @@
 /**
  * @file tb_factory.h
  * @author Soulaymen Chouri
- * @date March 1& 2019
+ * @date March 20 2019
  * @brief File for creating nodes and graphs, factory pattern.
  * This file provides methods for creating tensors, objects and nodes.
  */
@@ -46,7 +46,50 @@
 #ifndef _TB_FACTORY_H_
 #define _TB_FACTORY_H_
 
+#include <ndarray.h>
+#include <tb_graph.h>
+#include <tb_operation.h>
 
+/**
+ * \brief Creates a new variable
+ * \param[in] name variable name
+ * \return new variable node
+ */
+TBNode* tb_newVarNode(char* name);
+
+/**
+ * \brief Creates a new graph node
+ * \param[in] graph Nested graph to use
+ * \param[in] params node-variable name pairs to be assigned from the parent graph to the child graph.
+ * \return new graph node
+ */
+TBNode* tb_newGraphNode(TBGraph* graph, TBGraphNodeParam** params);
+
+/**
+ * \brief Creates a binary operation node
+ * \param[in] type binary operation type
+ * \param[in] lhs left hand side operand
+ * \param[in] rhs right hand side operand
+ * \return new binary operation node
+ */
+TBNode* tb_newBinaryOpNode(TBBinaryOperationType type, TBNode* lhs, TBNode* rhs);
+
+/**
+ * \brief Creates an unary operation node 
+ * \param[in] type unary operation type
+ * \param[in] uhs unary hand side operand
+ * \return new unary operation node
+ */
+TBNode* tb_newUnaryOpNode(TBUnaryOperationType type, TBNode* uhs);
+
+/**
+ * \brief Creates an Axis-bounded operation which operates on a given dimension/axis
+ * \param[in] type operation type
+ * \param[in] uhs unary hand side
+ * \param[in] axis Axis or dimension on which to operate
+ * \return new Axis bound node
+ */
+TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t axis);
 
 
 #endif

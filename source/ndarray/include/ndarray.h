@@ -36,10 +36,10 @@
  ****************************************************************************/
 
 /**
- * @file tb_tensor.h
+ * @file ndarray.h
  * @author Soulaymen Chouri
  * @date March 16 2019
- * @brief File containing Tensors metadata.
+ * @brief File containing ndarray aka tensors metadata.
  */
 
 #ifndef _TB_NDARRAY_H_

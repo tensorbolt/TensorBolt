@@ -78,11 +78,6 @@ typedef enum TBErrorType {
 	TBET_OPERATION_NOT_IMPLEMENTED,
 	
 	/**
-	 * \brief Matrix is not invertible
-	 */
-	TBET_MATRIX_NOT_INVERTIBLE,
-	
-	/**
 	 * \brief Did you just shoot yourself in the foot?
 	 */
 	TBET_DIVIDE_BY_ZERO,

@@ -17,7 +17,11 @@ set (PROJECT_SRCS
 
 include_directories(${PROJECT_INCLUDE_DIR})
 
-add_executable(ndarray
+add_library(ndarray
 #	${EXTERNAL_DEPS}
 	${PROJECT_SRCS}
 )
+# 
+install(TARGETS ndarray
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)

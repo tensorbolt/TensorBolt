@@ -175,14 +175,3 @@ void nda_free(NDArray* array){
     free(array->shape);
     free(array);
 }
-
-int main(){
-    NDArray* x = nda_linspace(0, 1, 10);
-    nda_debugValue(x);
-
-    NDArray* y = nda_copy(x);
-    nda_reshape(y, nda_newShape(2, 5, 2));
-    nda_debugValue(y);
-
-    return 0;
-}

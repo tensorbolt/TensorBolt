@@ -13,7 +13,8 @@ set( EXTERNAL_DEPS
 )
 
 set (PROJECT_SRCS
-	${PROJECT_SOURCE_DIR}/source/tb_tensor.c
+	${PROJECT_SOURCE_DIR}/source/main.c
+	${PROJECT_SOURCE_DIR}/source/tb_factory.c
 )
 
 include_directories(${PROJECT_INCLUDE_DIR})
@@ -21,4 +22,9 @@ include_directories(${PROJECT_INCLUDE_DIR})
 add_executable(tb_graph
 	${EXTERNAL_DEPS}
 	${PROJECT_SRCS}
+)
+
+
+target_link_libraries(tb_graph 
+	ndarray
 )
