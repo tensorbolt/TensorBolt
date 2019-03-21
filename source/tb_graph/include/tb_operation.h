@@ -57,8 +57,8 @@ typedef enum TBBinaryOperationType {
 	TBBOT_SUB,    /**< SUBSTRACTION (+broadcast) */
 	TBBOT_MULT,   /**< MULTIPLICATION (+bradcast) */
 	TBBOT_DIV,    /**< DIVISION (+broadcast) */
-	TBBOT_POW,    /**< Element-wise Power LHS must be a scalar. */
-	TBBOT_DOT,    /**< DOT PRODUCT */
+	TBBOT_POW,    /**< Element-wise Power RHS must be a scalar. */
+	TBBOT_DOT,    /**< DOT PRODUCT i.e matmul */
 } TBBinaryOperationType;
 #define MAX_BINARY_OPERATION TBBOT_DOT
 

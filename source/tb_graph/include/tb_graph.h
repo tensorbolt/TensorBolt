@@ -132,7 +132,7 @@ typedef struct TBGraph {
 
 
 /**
- * \brief paire of node and names passed to nested graphs
+ * \brief pair of node and names passed to nested graphs
  */
 typedef struct TBGraphNodeParam {
 	struct TBNode* node;           /**< Node pointer to be bounded with the next variable name */
