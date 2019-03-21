@@ -3,6 +3,7 @@
 
 #include <ndarray.h>
 
+#include <tb_session.h>
 #include <tb_graph.h>
 #include <tb_factory.h>
 
@@ -18,6 +19,8 @@ int main(){
 	nda_free(y);
 	
 	TBNode* n = tb_newVarNode("x2+");
+
+    TBGraphSession* session = tb_createLocalCPUSession(NULL, NULL);
 
     return 0;
 }

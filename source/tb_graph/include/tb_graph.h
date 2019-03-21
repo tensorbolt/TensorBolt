@@ -87,6 +87,10 @@ typedef vec_t(void*) TBNode_Vec;
  */
 void tb_assert(int cond, const char * rawcond, const char * fmt, ...);
 
+/* * * * * * * * * *
+ * DATA STRUCTURES *
+ * * * * * * * * * */ 
+
 /**
  * \brief List of the available node types
  */
@@ -138,5 +142,25 @@ typedef struct TBGraphNodeParam {
 	struct TBNode* node;           /**< Node pointer to be bounded with the next variable name */
 	char* var_name;                /**< Variable name to be bounded with the previous node */
 }TBGraphNodeParam;
+
+
+/* * * * * * *
+ * Graph API *
+ * * * * * * */ 
+
+/**
+ * \brief Creates a new graph
+ * \param name[in] graph name
+ * \param rootNode root node of the graph
+ * \return new allocated graph
+ */
+TBGraph* tb_newGraph(char* name, TBNode* rootNode);
+
+/**
+ * \brief Frees a graph
+ * \param graph Graph to deallocate
+ */
+void tb_freeGraph(TBGraph* graph);
+
 
 #endif
