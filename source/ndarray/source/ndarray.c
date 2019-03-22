@@ -108,6 +108,15 @@ uint64_t nda_getTotalSize(NDShape* shape){
     return size;
 }
 
+NDShape* nda_copyShape(NDShape* shape){
+    NDShape* shape2 = calloc(1, sizeof(NDShape));
+    shape2->rank = shape->rank;
+    shape2->dims = calloc(shape->rank, sizeof(uint64_t));
+    memcpy(shape2->dims, shape->dims, shape->rank*sizeof(uint64_t));
+    
+    return shape2;
+}
+
 NDArray* nda_alloc(NDShape* shape){
     uint64_t len = nda_getTotalSize(shape);
     tb_float* raw = calloc(len, sizeof(tb_float));
@@ -142,10 +151,7 @@ NDArray* nda_linspace(tb_float a, tb_float b, uint64_t n){
 }
 
 NDArray* nda_copy(NDArray* x){
-    NDShape* shape = calloc(1, sizeof(shape));
-    shape->rank = x->shape->rank;
-    shape->dims = calloc(shape->rank, sizeof(uint64_t));
-    memcpy(shape->dims, x->shape->dims, shape->rank*sizeof(uint64_t));
+    NDShape* shape = nda_copyShape(x->shape);
 
     uint64_t len = nda_getTotalSize(x->shape);
 

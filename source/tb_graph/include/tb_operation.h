@@ -49,6 +49,8 @@
 
 #include <stdint.h>
 
+#include <ndarray.h>
+
 /**
  * \brief List of the available binary operation types
  */
@@ -156,7 +158,7 @@ typedef struct TBVariable {
  * \brief constant node
  */
 typedef struct TBConstant {
-	NDArray* value;  /**< Constant node value */
+	struct NDArray* value;  /**< Constant node value */
 }TBConstant;
 
 #endif

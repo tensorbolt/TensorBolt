@@ -58,6 +58,13 @@
 TBNode* tb_newVarNode(char* name);
 
 /**
+ * \brief Creates a new constant value
+ * \param[in] array ND Array
+ * \return new variable node
+ */
+TBNode* tb_newConstantNode(NDArray* array);
+
+/**
  * \brief Creates a new graph node
  * \param[in] graph Nested graph to use
  * \param[in] params node-variable name pairs to be assigned from the parent graph to the child graph.
@@ -91,5 +98,9 @@ TBNode* tb_newUnaryOpNode(TBUnaryOperationType type, TBNode* uhs);
  */
 TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t axis);
 
-
+/**
+ * \brief Creates a new result node (do not create in case of error)
+ * \param[in] array NDArray, value of the result
+ */
+TBResultNode* tb_newResultNode(NDArray* array);
 #endif

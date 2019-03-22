@@ -36,7 +36,7 @@
  ****************************************************************************/
 
 /**
- * @file tb_enums.h
+ * @file tb_errors.h
  * @author Soulaymen Chouri
  * @date March 16 2019
  * @brief File containing error handeling structures.

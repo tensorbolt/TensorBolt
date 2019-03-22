@@ -6,6 +6,7 @@
 #include <tb_session.h>
 #include <tb_graph.h>
 #include <tb_factory.h>
+#include <tb_ops.h>
 
 int main(){
     NDArray* x = nda_linspace(0, 1, 10);
@@ -21,6 +22,9 @@ int main(){
 	TBNode* n = tb_newVarNode("x2+");
 
     TBGraphSession* session = tb_createLocalCPUSession(NULL, NULL);
-
+    
+    TBNode* c1 = tb_newConstantNode(nda_linspace(0, 1, 20));
+    tb_runSession(session, NULL, NULL);
+    
     return 0;
 }

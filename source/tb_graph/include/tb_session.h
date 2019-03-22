@@ -39,7 +39,7 @@
  * @file tb_session.h
  * @author Soulaymen Chouri
  * @date March 21 2019
- * @brief File containing Session data structure for creating sessins and running graphs.
+ * @brief File containing Session data structure for creating sessions and running graphs.
  */
 
 #ifndef _TB_SESSION_H_
@@ -50,7 +50,8 @@
 
 /**
  * \brief Structure of a graph session
- * A session specifies the graphs parameters, its variables, which device will it run on etc
+ * A session encapsulates the execution environment of graphs.
+ * Currently a session can be used to run only one graph.
  */
 typedef struct TBGraphSession {
 	struct TBGraph* graph;         /**< Graph to run */
@@ -63,11 +64,9 @@ typedef struct TBGraphSession {
 
 /**
  * \brief Creates a session to be run on CPU with optional multi-threading
- * \param[in] graph Graph to run
- * \param[in] params Array of Node-Var name pairs
  * \return CPU session (No OpenCL)
  */
-TBGraphSession* tb_createLocalCPUSession(TBGraph* graph, TBGraphNodeParam** params);
+TBGraphSession* tb_createLocalCPUSession();
 
 // TODO: Requires OpenCL
 // TBGraphSession* tb_createLocalAutoSelectSession(TBGraphNodeParam** params);
@@ -78,9 +77,11 @@ TBGraphSession* tb_createLocalCPUSession(TBGraph* graph, TBGraphNodeParam** para
 /**
  * \brief Computes session
  * \param[in] session Session to run
+ * \param[in/out] graph Graph to run
+ * \param[in] params Optional array of Node-Var name pairs, set to NULL if not needed
  * \return computation result which can be checked for error
  */
-TBResultNode* tb_runSession(TBGraphSession* session);
+struct TBResultNode* tb_runSession(TBGraphSession* session, struct TBGraph* graph, struct TBGraphNodeParam** params);
 
 /**
  * \brief Deallocates/frees a session after use, graph is freed as well. 

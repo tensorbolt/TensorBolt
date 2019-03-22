@@ -20,6 +20,17 @@ TBNode* tb_newVarNode(char* name){
 	return node;
 }
 
+TBNode* tb_newConstantNode(NDArray* array){
+    ASSERT(array != NULL, "NULL array passed to create a constant node");
+    TBConstant* c = calloc(1, sizeof(TBConstant));
+    c->value = array;
+    
+    TB_ALLOC_NODE(node, TBNT_CONSTANT, 1, c);
+    
+    return node;
+    
+}
+
 /*
  * TODO: Implement TBGraphNodeParam binding
  */
@@ -60,6 +71,15 @@ TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t
 	TB_ALLOC_NODE(node, TBNT_AXIS_BOUND_OPERATION, 1, abop);
 	
 	return node;
+}
+
+
+TBResultNode* tb_newResultNode(NDArray* array){
+    TBResultNode* res = calloc(1, sizeof(TBResultNode));
+    res->error = NULL;
+    res->value = array;
+    
+    return res;
 }
 
 

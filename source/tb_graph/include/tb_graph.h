@@ -51,17 +51,27 @@
 
 #include <ndarray.h>
 #include <tb_errors.h>
+#include <tb_session.h>
 
 #include "map.h"
 #include "vec.h"
 
+
+/* source: https://stackoverflow.com/questions/15305310/predefined-macros-for-function-name-func */
+#ifndef __FUNCTION_NAME__
+#ifdef WIN32   //WINDOWS
+#define __FUNCTION_NAME__   __FUNCTION__
+#else          //*NIX
+#define __FUNCTION_NAME__   __func__
+#endif
+#endif
 
 #define TB_ASSERT_LOG
 
 #if defined(TB_ASSERT_STANDARD)
 #define ASSERT(c ,msg, ...) assert(c)
 #elif defined (TB_ASSERT_LOG)
-#define ASSERT(c, msg, ...) tb_assert(c, #c, msg, ##__VA_ARGS__)
+#define ASSERT(c, msg, ...) tb_assert(c, #c, __FUNCTION_NAME__ , msg, ##__VA_ARGS__)
 #elif defined (TB_ASSERT_NONE)
 #define ASSERT(c, msg, ...)
 #else
@@ -85,7 +95,7 @@ typedef vec_t(void*) TBNode_Vec;
  * \param[in] fmt   additional custom error message to be logged in stderr
  * \param[in] ...   custom error message parameters similar to printf
  */
-void tb_assert(int cond, const char * rawcond, const char * fmt, ...);
+void tb_assert(int cond, const char * rawcond, const char* func_name, const char * fmt, ...);
 
 /* * * * * * * * * *
  * DATA STRUCTURES *
@@ -158,9 +168,24 @@ TBGraph* tb_newGraph(char* name, TBNode* rootNode);
 
 /**
  * \brief Frees a graph
- * \param graph Graph to deallocate
+ * \param[out] graph Graph to deallocate
  */
 void tb_freeGraph(TBGraph* graph);
 
+/**
+ * \brief Binds a node with a variable name within the graph
+ * \param[in/out] graph Graph to update
+ * \param[in] node Node to bind
+ * \param[in] name Variable name
+ */
+void tb_graphSetVar(TBGraph* graph, TBNode* node, const char* name);
+
+/**
+ * \brief Returns the value of a given variable name
+ * \param[in] graph Base graph
+ * \param[in] name Variable name to request
+ * \return Node if it exists, NULL otherwise.
+ */
+TBNode* tb_graphGetVar(TBGraph* graph, const char* name);
 
 #endif

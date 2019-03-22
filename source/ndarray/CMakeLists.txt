@@ -14,12 +14,16 @@ set( EXTERNAL_DEPS
 set (PROJECT_SRCS
 	${PROJECT_SOURCE_DIR}/source/ndarray.c
 )
+set (PROJECT_HEADERS
+	${PROJECT_SOURCE_DIR}/include/ndarray.h
+)
 
 include_directories(${PROJECT_INCLUDE_DIR})
 
 add_library(ndarray
 #	${EXTERNAL_DEPS}
 	${PROJECT_SRCS}
+	${PROJECT_HEADERS}
 )
 # 
 install(TARGETS ndarray

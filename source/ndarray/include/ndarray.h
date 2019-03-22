@@ -96,6 +96,13 @@ NDShape* nda_newShape(uint64_t rank, ...);
 void nda_debugShape(NDShape* shape);
 
 /**
+ * \brief Creates and Allocates a shape with the same properties of the given one
+ * \param shape Shape to copy
+ * \return New allocated shape
+ */
+NDShape* nda_copyShape(NDShape* shape);
+
+/**
  * \brief Prints tensor value to stdout
  * \param[in] tensor Tensor to display
  */
