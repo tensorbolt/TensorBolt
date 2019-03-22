@@ -103,4 +103,15 @@ TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t
  * \param[in] array NDArray, value of the result
  */
 TBResultNode* tb_newResultNode(NDArray* array);
+
+/**
+ * \brief Create a runtime error result node, which does NOT stop the execution! i.e Not an assertion
+ * \param[in] errType type of the exception/error
+ * \param[in] msg Error message description
+ * \param[in] node Which node caused the error
+ * \param[in] graph In which graph the exception occured
+ * \return Error result node
+ */
+TBResultNode* tb_newErrorResultNode(TBErrorType errType, const char* msg, TBNode* node, TBGraph* graph);
+
 #endif

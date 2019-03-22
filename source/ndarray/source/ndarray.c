@@ -55,6 +55,20 @@
 void _printSubNDArrayRecursive(NDShape* shape, uint64_t* stack, uint64_t stack_len, uint64_t stack_value, uint64_t index, tb_float* data);
 
 
+void nda_ShapeStackInit(NDShapeStack* stack, NDShape* shape){
+    stack->shape = shape;
+    stack->i = shape->rank;
+}
+
+uint8_t nda_ShapeStackCanPop(NDShapeStack* stack){
+    return stack->i > 0;
+}
+
+uint64_t nda_ShapeStackPop(NDShapeStack* stack){
+    stack->i--;
+    return stack->shape->dims[stack->i];
+}
+
 NDShape* nda_newShape(uint64_t rank, ...){
     NDShape* shape = calloc(1, sizeof(NDShape));
     shape->rank = rank;

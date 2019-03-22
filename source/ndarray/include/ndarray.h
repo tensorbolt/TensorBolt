@@ -62,6 +62,36 @@ typedef struct NDShape {
 }NDShape;
 
 /**
+ * \brief Treats NDShape as a stack to pop elements, does not modify the original shape
+ */
+typedef struct NDShapeStack {
+    NDShape* shape;       /**< Pointer to shape */
+    uint64_t i;           /**< Stack Pointer */
+}NDShapeStack;
+
+/**
+ * \brief Unline other factory pattern object, the stack is usually allocated on the stack (in contrast to heap)
+ * So we do need dynamically allocate it, this function only initializes the values of a fresh allocated stack
+ * \param [in/out] stack Allocated stack to initialize
+ * \param [in] shape Shape to bind to the stack
+ */
+void nda_ShapeStackInit(NDShapeStack* stack, NDShape* shape);
+
+/**
+ * \brief Checks if a shape stack can still popped further more
+ * \param[in] stack Stack to check
+ * \return Boolean, true if the stack can be popped further more, false otherwise.
+ */
+uint8_t nda_ShapeStackCanPop(NDShapeStack* stack);
+
+/**
+ * \brief Pops the next element in the stack, does not modify the shape but updates the index in the stack
+ * \param[in/out] stack Stack from which to pop the element
+ * \return Dimension of the shape in the stack index
+ */
+uint64_t nda_ShapeStackPop(NDShapeStack* stack);
+
+/**
  * Array location
  */
 typedef enum NDArrayLocation {

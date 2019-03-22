@@ -132,6 +132,18 @@ static inline tb_float _negative(tb_float x){
     return -x;
 }
 
+static inline uint8_t _tb_canBroadCast(NDShape* shape1, NDShape* shape2){
+    NDShapeStack stack1, stack2;
+    
+    nda_ShapeStackInit(&stack1, shape1);
+    nda_ShapeStackInit(&stack2, shape2);
+    
+    uint64_t i1 = nda_ShapeStackPop(&stack1);
+    uint64_t i2 = nda_ShapeStackPop(&stack2);
+    
+    return 0;
+}
+
 /* * * * * * * * * * *
  * BINARY OPERATIONS *
  * * * * * * * * * * */
@@ -140,7 +152,7 @@ TBResultNode* _tb_add(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
-    if((lhsShape->rank)== 1 && (lhsShape->dims[0] == 1)){
+    if((lhsShape->rank)== 1 && (rhsShape->dims[0] == 1)){
         
     }
     
@@ -247,3 +259,6 @@ TBResultNode* _tb_transpose(TBGraphSession* sess, TBGraph* graph, TBNode* node, 
 TBResultNode* _tb_elu(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs){
     return NULL;
 }
+
+
+#undef TB_UNARY_OP_MAP

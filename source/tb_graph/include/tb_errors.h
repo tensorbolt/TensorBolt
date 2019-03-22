@@ -94,8 +94,9 @@ typedef enum TBErrorType {
 
 typedef struct TBError {
 	TBErrorType errorType;      /**< Which type of error has occured. */
-	struct TBNode* faultyNode;  /**< Which ndoe caused the error. */
-	char* message;              /**< Error message & description */
+	struct TBNode* faultyNode;  /**< Which node caused the error. */
+    struct TBGraph* graph;      /**< Which Graph the exception occured */
+	const char* message;              /**< Error message & description */
 }TBError;
 
 #endif

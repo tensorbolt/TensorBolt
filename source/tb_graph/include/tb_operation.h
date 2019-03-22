@@ -100,30 +100,6 @@ typedef enum TBAxisBoundOperationType {
 
 #define MAX_AXIS_BOUND_OPERATION TBABOT_VARIANCE
 
-/**
- * \brief Specifies if CPU information where correctly extracted or not
- */
-typedef enum CPUInfoAvailabilty {
-	TBCPUINFO_AVAILABLE,
-	TBCPUINFO_NOT_AVAILABLE
-}CPUInfoAvailabilty;
-
-/**
- * \brief Specifies various CPU features that can be extracted.
- */
-typedef enum CPUFeatures {
-	TBCPUF_MMX = 0,
-	TBCPUF_MMX_EXT,
-	TBCPUF_SSE,
-	TBCPUF_SSE2,
-	TBCPUF_SSE3,
-	TBCPUF_3DNOW,
-	TBCPUF_AVX,
-	TBCPUF_SSSE3,
-	TBCPUF_SSE4_1,
-	TBCPUF_SSE4_2,
-}CPUFeatures;
-
 
 /**
  * \brief Binary operation node
@@ -160,5 +136,38 @@ typedef struct TBVariable {
 typedef struct TBConstant {
 	struct NDArray* value;  /**< Constant node value */
 }TBConstant;
+
+/**
+ * \brief Graph Node
+ */
+typedef struct TBGraphNode{
+    TBGraphNodeParam** params;   /**< Graph arguments, nodes should be constants!!!!!! */
+    TBGraph* graph;              /**< Actual graph structure */
+}TBGraphNode;
+
+/**
+ * \brief Specifies if CPU information where correctly extracted or not
+ */
+typedef enum CPUInfoAvailabilty {
+    TBCPUINFO_AVAILABLE,
+    TBCPUINFO_NOT_AVAILABLE
+}CPUInfoAvailabilty;
+
+/**
+ * \brief Specifies various CPU features that can be extracted.
+ */
+typedef enum CPUFeatures {
+    TBCPUF_MMX = 0,
+    TBCPUF_MMX_EXT,
+    TBCPUF_SSE,
+    TBCPUF_SSE2,
+    TBCPUF_SSE3,
+    TBCPUF_3DNOW,
+    TBCPUF_AVX,
+    TBCPUF_SSSE3,
+    TBCPUF_SSE4_1,
+    TBCPUF_SSE4_2,
+}CPUFeatures;
+
 
 #endif

@@ -12,19 +12,13 @@ int main(){
     NDArray* x = nda_linspace(0, 1, 10);
     nda_debugValue(x);
 
-    NDArray* y = nda_copy(x);
-    nda_reshape(y, nda_newShape(2, 5, 2));
-    nda_debugValue(y);
-	
-	nda_free(x);
-	nda_free(y);
-	
-	TBNode* n = tb_newVarNode("x2+");
-
-    TBGraphSession* session = tb_createLocalCPUSession(NULL, NULL);
+    TBNode* n1 = tb_newUnaryOpNode(TBUOT_LOG, tb_newConstantNode(x));
     
-    TBNode* c1 = tb_newConstantNode(nda_linspace(0, 1, 20));
-    tb_runSession(session, NULL, NULL);
+    TBGraph* g = tb_newGraph("test", n1);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    nda_debugValue(res->value);
     
     return 0;
 }

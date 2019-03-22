@@ -73,7 +73,6 @@ TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t
 	return node;
 }
 
-
 TBResultNode* tb_newResultNode(NDArray* array){
     TBResultNode* res = calloc(1, sizeof(TBResultNode));
     res->error = NULL;
@@ -82,5 +81,17 @@ TBResultNode* tb_newResultNode(NDArray* array){
     return res;
 }
 
+TBResultNode* tb_newErrorResultNode(TBErrorType errType, const char* msg, TBNode* node, TBGraph* graph){
+    TBResultNode* res = calloc(1, sizeof(TBResultNode));
+    res->error = calloc(1, sizeof(TBError));
+    res->error->errorType = errType;
+    res->error->faultyNode = node;
+    res->error->graph = graph;
+    res->error->message = msg;
+    
+    res->value = NULL;
+    
+    return res;
+}
 
 #undef TB_ALLOC_NODE

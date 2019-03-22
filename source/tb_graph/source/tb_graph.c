@@ -60,7 +60,7 @@ TBNode* tb_graphGetVar(TBGraph* graph, const char* name){
     return *noderef;
 }
 
-static void tb_storeNodesInGraph(TBGraph* graph, TBNode* node){
+void tb_storeNodesInGraph(TBGraph* graph, TBNode* node){
 	int idx = -1;
 	
 	vec_find(&graph->nodes, node, idx);

@@ -188,4 +188,12 @@ void tb_graphSetVar(TBGraph* graph, TBNode* node, const char* name);
  */
 TBNode* tb_graphGetVar(TBGraph* graph, const char* name);
 
+/**
+ * \brief Recursively travers a node and stores all nodes in the graph nodes list,
+ * in order to make freeing them later on a piece of cake (or so I hope). This
+ * function is automatically called when running a session.
+ * \param[in/out] graph Graph to process
+ * \param[in] node Node to add, and recursively traverse.
+ */
+void tb_storeNodesInGraph(TBGraph* graph, TBNode* node)
 #endif
