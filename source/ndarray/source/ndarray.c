@@ -131,6 +131,27 @@ NDShape* nda_copyShape(NDShape* shape){
     return shape2;
 }
 
+
+uint8_t nda_shapeCanBroadCast(NDShape* shape1, NDShape* shape2){
+    NDShapeStack stack1, stack2;
+    
+    nda_ShapeStackInit(&stack1, shape1);
+    nda_ShapeStackInit(&stack2, shape2);
+    
+    NDShape* vshape = NULL;
+    
+    while(nda_ShapeStackCanPop(&stack1) && nda_ShapeStackCanPop(&stack2)){
+        uint64_t i1 = nda_ShapeStackPop(&stack1);
+        uint64_t i2 = nda_ShapeStackPop(&stack2);
+        
+        if((i1 != i2) || !((i1 != 1) || (i2 != 1))){
+            return 0;
+        }
+    }
+    
+    return 1;
+}
+
 NDArray* nda_alloc(NDShape* shape){
     uint64_t len = nda_getTotalSize(shape);
     tb_float* raw = calloc(len, sizeof(tb_float));

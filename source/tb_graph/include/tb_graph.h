@@ -195,5 +195,6 @@ TBNode* tb_graphGetVar(TBGraph* graph, const char* name);
  * \param[in/out] graph Graph to process
  * \param[in] node Node to add, and recursively traverse.
  */
-void tb_storeNodesInGraph(TBGraph* graph, TBNode* node)
+void tb_storeNodesInGraph(TBGraph* graph, TBNode* node);
+
 #endif

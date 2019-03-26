@@ -133,6 +133,22 @@ void nda_debugShape(NDShape* shape);
 NDShape* nda_copyShape(NDShape* shape);
 
 /**
+ * \brief Verifies if two shapes can be broadcasted
+ * Broadcast verifications follows numpy rules:
+ *   1. If the two arrays differ in their number of dimensions, the shape of
+ *      the one with fewer dimensions is padded with ones on its leading (left) side.
+ *   2. If the shape of the two arrays does not match in any dimension, the array
+ *      with shape equal to 1 in that dimension is stretched to match the other shape.
+ *   3. If in any dimension the sizes disagree and neither is equal to 1, an error is raised.
+ *
+ * \param[in] shape1 Shape of the first array
+ * \param[in] shape2 Shape of the second array
+ * \return true if shapes can be broadcasted, false otherwise.
+ */
+uint8_t nda_shapeCanBroadCast(NDShape* shape1, NDShape* shape2);
+
+
+/**
  * \brief Prints tensor value to stdout
  * \param[in] tensor Tensor to display
  */

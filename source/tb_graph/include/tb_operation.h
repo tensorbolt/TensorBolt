@@ -141,8 +141,8 @@ typedef struct TBConstant {
  * \brief Graph Node
  */
 typedef struct TBGraphNode{
-    TBGraphNodeParam** params;   /**< Graph arguments, nodes should be constants!!!!!! */
-    TBGraph* graph;              /**< Actual graph structure */
+    struct TBGraphNodeParam** params;   /**< Graph arguments, nodes should be constants!!!!!! */
+    struct TBGraph* graph;              /**< Actual graph structure */
 }TBGraphNode;
 
 /**
