@@ -46,6 +46,9 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <tb_session.h>
 #include <tb_graph.h>
@@ -141,13 +144,16 @@ TBResultNode* _tb_add(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
-    if((lhsShape->rank == 1) && (rhsShape->dims[0] == 1)){
-        if (lhsShape->dims[0] == lhsShape->dims[0]){
-            return 1;
-        }
-        else {
-            return 0;
-        }
+    if(!nda_shapeCanBroadCast(lhsShape, rhsShape)){
+        char msg[1024] = {0};
+        const char* lhsShapeInfo = nda_shapeToString(lhsShape);
+        const char* rhsShapeInfo = nda_shapeToString(rhsShape);
+        snprintf(msg, 1024, "Cannot broadcast shapes %s and %s", lhsShapeInfo, rhsShapeInfo);
+        
+        free(lhsShapeInfo);
+        free(rhsShapeInfo);
+        
+        return tb_newErrorResultNode(TBET_VARIABLE_DOES_NOT_EXIST, msg, node, graph);
     }
     
     return NULL;

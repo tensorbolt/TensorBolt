@@ -51,6 +51,20 @@
 
 #include "ndarray.h"
 
+void nda_assert(int cond, const char * rawcond, const char* func_name, const char * fmt, ...){
+    if(cond)
+        return;
+    char temp[1024];
+    va_list vl;
+    va_start(vl, fmt);
+    vsprintf(temp, fmt, vl);
+    va_end(vl);
+    fprintf(stdout, "Fatal error, assertion failed: `%s` in function `%s` \n", rawcond, func_name);
+    fprintf(stdout, "%s", temp);
+    fprintf(stdout, "\n");
+    
+    exit(-1);
+}
 static inline uint64_t* __nda__copyArray(uint64_t len, uint64_t* array){
     uint64_t* arr = calloc(len, sizeof(uint64_t));
     memcpy(arr, array, sizeof(uint64_t)*len);
@@ -116,6 +130,41 @@ void nda_debugShape(NDShape* shape){
     printf("}\n");
 }
 
+const char* nda_shapeToString(NDShape* shape){
+    char buf[1024] = {0};
+    int offset = snprintf(buf, 1024, "(.rank = %llu, ", shape->rank);
+    
+    size_t i = 0;
+    for(; i < shape->rank; i++){
+        offset += snprintf(buf+offset, 1024, ".dims[%zu] = %llu, ", i, shape->dims[i]);
+    }
+    
+    snprintf(buf+offset, 1024, ")\0");
+    
+    return strdup(buf);
+}
+
+/**
+ * \brief Returns the value of an array
+ * \param[in] array NDArray to access
+ * \param[in] index Array of dims of the element
+ */
+tb_float nda_get(NDArray* array, uint64_t* index){
+    NDShape* shape = array->shape;
+    
+    uint64_t dim_counter = 1;
+    uint64_t i = shape->rank - 1;
+    uint64_t data_index = index[i];
+    
+    for(; i > 0; i--){
+        ASSERT(index[i] < shape->dims[i], "Cannot index array with index %lld > dimension %lld in axis %lld", index[i], shape->dims[i], i);
+        dim_counter *= shape->dims[i];
+        data_index += index[i-1]*dim_counter;
+    }
+    
+    return array->data[data_index];
+    
+}
 
 void nda_debugValue(NDArray* tensor){
     nda_debugShape(tensor->shape);

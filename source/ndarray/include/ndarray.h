@@ -48,6 +48,27 @@
 #include <stdint.h>
 #include <stdarg.h>
 
+#ifndef __FUNCTION_NAME__
+#ifdef WIN32   //WINDOWS
+#define __FUNCTION_NAME__   __FUNCTION__
+#else          //*NIX
+#define __FUNCTION_NAME__   __func__
+#endif
+#endif
+
+#define TB_ASSERT_LOG
+
+#if defined(TB_ASSERT_STANDARD)
+#define ASSERT(c ,msg, ...) assert(c)
+#elif defined (TB_ASSERT_LOG)
+#define ASSERT(c, msg, ...) nda_assert(c, #c, __FUNCTION_NAME__ , msg, ##__VA_ARGS__)
+#elif defined (TB_ASSERT_NONE)
+#define ASSERT(c, msg, ...)
+#else
+#error Please define an assertion policy.
+#endif
+
+
 /*
  * change this to double if you need
  */
@@ -166,6 +187,12 @@ NDShape* nda_copyShape(NDShape* shape);
  */
 uint8_t nda_shapeCanBroadCast(NDShape* shape1, NDShape* shape2);
 
+/**
+ * \brief Generate a string representation of the shape, which can be used for debugging or generating errors
+ * \param[in] shape NDShape to process
+ * \return string representation of the shape
+ */
+const char* nda_shapeToString(NDShape* shape);
 
 /**
  * \brief Prints tensor value to stdout
@@ -215,5 +242,12 @@ void nda_reshape(NDArray* x, NDShape* shape);
  * \param [in/out] array data to free
  */
 void nda_free(NDArray* array);
+
+/**
+ * \brief Returns the value of an array
+ * \param[in] array NDArray to access
+ * \param[in] index Array of dims of the element, len(index) must be equal to to the rank of the array
+ */
+tb_float nda_get(NDArray* array, uint64_t* index);
 
 #endif

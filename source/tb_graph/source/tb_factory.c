@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <tb_graph.h>
 #include <ndarray.h>
@@ -81,13 +82,14 @@ TBResultNode* tb_newResultNode(NDArray* array){
     return res;
 }
 
+// TODO: free node impl
 TBResultNode* tb_newErrorResultNode(TBErrorType errType, const char* msg, TBNode* node, TBGraph* graph){
     TBResultNode* res = calloc(1, sizeof(TBResultNode));
     res->error = calloc(1, sizeof(TBError));
     res->error->errorType = errType;
     res->error->faultyNode = node;
     res->error->graph = graph;
-    res->error->message = msg;
+    res->error->message = strdup(msg);
     
     res->value = NULL;
     
