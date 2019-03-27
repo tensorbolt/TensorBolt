@@ -51,6 +51,13 @@
 
 #include "ndarray.h"
 
+static inline uint64_t* __nda__copyArray(uint64_t len, uint64_t* array){
+    uint64_t* arr = calloc(len, sizeof(uint64_t));
+    memcpy(arr, array, sizeof(uint64_t)*len);
+    return arr;
+}
+
+
 // https://stackoverflow.com/questions/29142417/4d-position-from-1d-index
 void _printSubNDArrayRecursive(NDShape* shape, uint64_t* stack, uint64_t stack_len, uint64_t stack_value, uint64_t index, tb_float* data);
 
@@ -82,6 +89,19 @@ NDShape* nda_newShape(uint64_t rank, ...){
     va_end( argPtr );
 
     return shape;
+}
+
+NDShape* nda_newShapeFromArray(uint64_t rank, uint64_t* dims){
+    NDShape* shape = calloc(1, sizeof(NDShape));
+    shape->rank = rank;
+    shape->dims = dims;
+    
+    return shape;
+}
+
+NDShape* nda_newShapeFromArrayCopy(uint64_t rank, uint64_t* dims){
+    uint64_t arr = __nda__copyArray(rank, dims);
+    return nda_newShapeFromArray(rank, arr);
 }
 
 void nda_debugShape(NDShape* shape){
@@ -131,20 +151,17 @@ NDShape* nda_copyShape(NDShape* shape){
     return shape2;
 }
 
-
 uint8_t nda_shapeCanBroadCast(NDShape* shape1, NDShape* shape2){
     NDShapeStack stack1, stack2;
     
     nda_ShapeStackInit(&stack1, shape1);
     nda_ShapeStackInit(&stack2, shape2);
     
-    NDShape* vshape = NULL;
-    
     while(nda_ShapeStackCanPop(&stack1) && nda_ShapeStackCanPop(&stack2)){
         uint64_t i1 = nda_ShapeStackPop(&stack1);
         uint64_t i2 = nda_ShapeStackPop(&stack2);
         
-        if((i1 != i2) || !((i1 != 1) || (i2 != 1))){
+        if((i1 != i2) && !((i1 != 1) || (i2 != 1))){
             return 0;
         }
     }
