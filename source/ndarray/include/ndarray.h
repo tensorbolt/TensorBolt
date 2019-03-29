@@ -247,7 +247,20 @@ void nda_free(NDArray* array);
  * \brief Returns the value of an array
  * \param[in] array NDArray to access
  * \param[in] index Array of dims of the element, len(index) must be equal to to the rank of the array
+ * \return array[index]
  */
 tb_float nda_get(NDArray* array, uint64_t* index);
+
+/**
+ * \brief Returns the value of array throughout a virtual shape. The virtual shape
+ *        has the same size of the original, but padded with ones to match another
+ *        shape during broadcasting. If an index has a value higher than the padded
+ *        virtual shape, the index 0 is then used. #deal_with_it.
+ * \param[in] array NDArray to access
+ * \param[in] index Array of dims of the element, len(index) must be equal to to the rank of the array
+ * \param[in] vshape Virtual padded shape
+ * \return array[index%vshape]
+ */
+tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape);
 
 #endif

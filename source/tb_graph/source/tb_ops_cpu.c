@@ -144,10 +144,12 @@ TBResultNode* _tb_add(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
-    if(!nda_shapeCanBroadCast(lhsShape, rhsShape)){
+    uint8_t res = nda_shapeCanBroadCast(lhsShape, rhsShape);
+    
+    if(!res){
         char msg[1024] = {0};
-        const char* lhsShapeInfo = nda_shapeToString(lhsShape);
-        const char* rhsShapeInfo = nda_shapeToString(rhsShape);
+        char* lhsShapeInfo = nda_shapeToString(lhsShape);
+        char* rhsShapeInfo = nda_shapeToString(rhsShape);
         snprintf(msg, 1024, "Cannot broadcast shapes %s and %s", lhsShapeInfo, rhsShapeInfo);
         
         free(lhsShapeInfo);
@@ -155,6 +157,33 @@ TBResultNode* _tb_add(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
         
         return tb_newErrorResultNode(TBET_VARIABLE_DOES_NOT_EXIST, msg, node, graph);
     }
+    
+    NDShape* biggerShape = res==1?lhsShape:rhsShape;
+    NDShape* smallerShape = res==2?rhsShape:lhsShape;
+    
+    uint64_t vshape_len = biggerShape->rank;
+    uint64_t num_pads = biggerShape->rank-smallerShape->rank;
+    
+    uint64_t* array = calloc(vshape_len, sizeof(uint64_t));
+    
+    size_t i = 0;
+    size_t j = 0;
+    
+    for(; i < num_pads; i++){
+        array[i] = 1;
+    }
+    
+    for(; i < vshape_len; i++,j++){
+        if(biggerShape->dims[i] > smallerShape->dims[j]){
+            array[i] = biggerShape->dims[i];
+        }
+        else {
+            array[i] = smallerShape->dims[j];
+        }
+    }
+    
+    NDShape* vshape = nda_newShapeFromArray(vshape_len, array);
+    nda_debugShape(vshape);
     
     return NULL;
 }

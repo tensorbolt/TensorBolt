@@ -62,7 +62,7 @@ void nda_assert(int cond, const char * rawcond, const char* func_name, const cha
     fprintf(stdout, "Fatal error, assertion failed: `%s` in function `%s` \n", rawcond, func_name);
     fprintf(stdout, "%s", temp);
     fprintf(stdout, "\n");
-    
+    assert(cond);
     exit(-1);
 }
 static inline uint64_t* __nda__copyArray(uint64_t len, uint64_t* array){
@@ -163,7 +163,22 @@ tb_float nda_get(NDArray* array, uint64_t* index){
     }
     
     return array->data[data_index];
+}
+
+tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape){
+    uint64_t dim_counter = 1;
+    uint64_t i = vshape->rank - 1;
+    uint64_t data_index = index[i];
     
+    for(; i > 0; i--){
+        uint64_t id = index[i-1];
+        if (id >= vshape->dims[i-1])
+            id = 0;
+        dim_counter *= vshape->dims[i];
+        data_index += id*dim_counter;
+    }
+    
+    return array->data[data_index];
 }
 
 void nda_debugValue(NDArray* tensor){
@@ -215,7 +230,11 @@ uint8_t nda_shapeCanBroadCast(NDShape* shape1, NDShape* shape2){
         }
     }
     
-    return 1;
+    if((shape1->rank) > (shape2->rank)){
+        return 1;
+    }
+    
+    return 2;
 }
 
 NDArray* nda_alloc(NDShape* shape){

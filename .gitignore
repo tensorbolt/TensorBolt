@@ -2,3 +2,5 @@ build/
 *.kdev4
 .vscode/
 .kdev4/
+source/.DS_Store
+.DS_Store
