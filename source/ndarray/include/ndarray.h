@@ -78,8 +78,9 @@ typedef float tb_float;
  * \brief Tensor Shape
  */
 typedef struct NDShape {
-    uint64_t rank;  /**< Total number of dimentions */
-    uint64_t* dims; /**< Dimensions */
+    uint64_t rank;     /**< Total number of dimentions */
+    uint64_t* dims;    /**< Dimensions */
+    uint64_t raw_len;  /**< Total number of elements */
 }NDShape;
 
 /**
@@ -192,7 +193,7 @@ uint8_t nda_shapeCanBroadCast(NDShape* shape1, NDShape* shape2);
  * \param[in] shape NDShape to process
  * \return string representation of the shape
  */
-const char* nda_shapeToString(NDShape* shape);
+char* nda_shapeToString(NDShape* shape);
 
 /**
  * \brief Prints tensor value to stdout
@@ -262,5 +263,23 @@ tb_float nda_get(NDArray* array, uint64_t* index);
  * \return array[index%vshape]
  */
 tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape);
+
+/**
+ * \brief Returns the value of an array through 1d Inde
+ * \param[in] array NDArray to access
+ * \param[in] index 1D index to fetch
+ * \return array[index]
+ */
+tb_float nda_get1D(NDArray* array, uint64_t index);
+
+/**
+ * \brief Returns the value of array throughout a 1D index. If the index has a value higher
+ *        than the original size, mod is used
+ * \param[in] array NDArray to access
+ * \param[in] index 1D index to fetch
+ * \return array[index%vshape]
+ */
+tb_float nda_vget1D(NDArray* array, uint64_t index);
+
 
 #endif

@@ -135,6 +135,59 @@ static inline tb_float _negative(tb_float x){
     return -x;
 }
 
+static void _tb_prepareBroadcast(uint8_t res, NDArray* lhs, NDArray* rhs, NDArray* biggerArray, NDArray* smallerArray, NDArray* arr_res){
+    NDShape* lhsShape = lhs->shape;
+    NDShape* rhsShape = rhs->shape;
+    
+    NDShape* biggerShape  = res==1?lhsShape:rhsShape;
+    NDShape* smallerShape = res==1?rhsShape:lhsShape;
+    
+    biggerArray  = res==1?lhs:rhs;
+    smallerArray = res==1?rhs:lhs;
+    
+    uint64_t vshape_len = biggerShape->rank;
+    uint64_t num_pads = biggerShape->rank-smallerShape->rank;
+    
+    uint64_t* array = calloc(vshape_len, sizeof(uint64_t));
+    
+    size_t i = 0;
+    size_t j = 0;
+    
+    for(; i < num_pads; i++){
+        array[i] = biggerShape->dims[i];
+    }
+    
+    for(; i < vshape_len; i++,j++){
+        printf("%lld, %lld\n", biggerShape->dims[i], smallerShape->dims[j]);
+        if(biggerShape->dims[i] > smallerShape->dims[j]){
+            array[i] = biggerShape->dims[i];
+        }
+        else {
+            array[i] = smallerShape->dims[j];
+        }
+    }
+    
+    NDShape* vshape = nda_newShapeFromArray(vshape_len, array);
+    nda_debugShape(vshape);
+    
+    // creating output arrray
+    arr_res = nda_alloc(vshape);
+    tb_float* arr = arr_res->data;
+    
+    size_t counter = 0;
+    uint64_t big_size = biggerShape->raw_len;
+    uint64_t small_size = smallerShape->raw_len;
+    
+    while(counter < vshape->raw_len){
+        memcpy(arr+counter, smallerArray->data, big_size*sizeof(tb_float));
+        counter += small_size;
+    }
+    
+    nda_debugValue(arr_res);
+    
+    counter = 0;
+    
+}
 
 /* * * * * * * * * * *
  * BINARY OPERATIONS *
@@ -155,35 +208,21 @@ TBResultNode* _tb_add(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
         free(lhsShapeInfo);
         free(rhsShapeInfo);
         
-        return tb_newErrorResultNode(TBET_VARIABLE_DOES_NOT_EXIST, msg, node, graph);
+        return tb_newErrorResultNode(TBET_INCOMPATIBLE_DIMENTIONS_EXCEPTION, msg, node, graph);
     }
+    NDArray* biggerArray = NULL, * smallerArray = NULL;
+    NDArray* arr_res = NULL;
     
-    NDShape* biggerShape = res==1?lhsShape:rhsShape;
-    NDShape* smallerShape = res==2?rhsShape:lhsShape;
+    _tb_prepareBroadcast(res, lhs->value, rhs->value, biggerArray, smallerArray, arr_res);
     
-    uint64_t vshape_len = biggerShape->rank;
-    uint64_t num_pads = biggerShape->rank-smallerShape->rank;
+    ASSERT(arr_res != NULL, "Fatal Error Occured.");
     
-    uint64_t* array = calloc(vshape_len, sizeof(uint64_t));
-    
+    tb_float* arr = arr_res->data;
     size_t i = 0;
-    size_t j = 0;
     
-    for(; i < num_pads; i++){
-        array[i] = 1;
+    for(; i<arr_res->shape->raw_len;i++){
+        arr[i] += nda_vget1D(biggerArray, i);
     }
-    
-    for(; i < vshape_len; i++,j++){
-        if(biggerShape->dims[i] > smallerShape->dims[j]){
-            array[i] = biggerShape->dims[i];
-        }
-        else {
-            array[i] = smallerShape->dims[j];
-        }
-    }
-    
-    NDShape* vshape = nda_newShapeFromArray(vshape_len, array);
-    nda_debugShape(vshape);
     
     return NULL;
 }

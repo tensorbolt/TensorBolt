@@ -8,7 +8,10 @@
 #include <tb_factory.h>
 #include <tb_ops.h>
 
-void test(NDShape* lhsShape, NDShape* rhsShape){
+void test(NDArray* lhs, NDArray* rhs){
+    NDShape* lhsShape = lhs->shape;
+    NDShape* rhsShape = rhs->shape;
+    
     nda_debugShape(lhsShape);
     nda_debugShape(rhsShape);
     
@@ -27,8 +30,13 @@ void test(NDShape* lhsShape, NDShape* rhsShape){
         exit(-1);
     }
     
-    NDShape* biggerShape = res==1?lhsShape:rhsShape;
+    printf("Can broadcast = %d\n", res);
+    
+    NDShape* biggerShape  = res==1?lhsShape:rhsShape;
     NDShape* smallerShape = res==1?rhsShape:lhsShape;
+    
+    NDArray* biggerArray  = res==1?lhs:rhs;
+    NDArray* smallerArray = res==1?rhs:lhs;
     
     uint64_t vshape_len = biggerShape->rank;
     uint64_t num_pads = biggerShape->rank-smallerShape->rank;
@@ -54,15 +62,42 @@ void test(NDShape* lhsShape, NDShape* rhsShape){
     
     NDShape* vshape = nda_newShapeFromArray(vshape_len, array);
     nda_debugShape(vshape);
+    
+    NDArray* arr_res = nda_alloc(vshape);
+    tb_float* arr = arr_res->data;
+    
+    size_t counter = 0;
+    
+    
+    for(; counter<vshape->raw_len;counter++){
+        size_t i = vshape->rank;
+        uint64_t mul = vshape->raw_len;
+        uint64_t counter_tmp = counter;
+        uint64_t* index = calloc(vshape->rank, sizeof(uint64_t));
+        for(; i !=0 ; i--){
+            mul /= vshape->dims[vshape->rank - i];
+            index[vshape->rank - i] = counter_tmp / mul;
+            counter_tmp -= index[vshape->rank - i] * mul;
+        }
+        
+        //printf("index[%lld, %lld] = %f\n", index[0], index[1], nda_vget(rhs, index, vshape));
+        arr[counter] += nda_vget(lhs, index, vshape) + nda_vget(rhs, index, vshape);
+    }
+    
+    nda_debugValue(arr_res);
 }
 
 int main(){
-    NDArray* x = nda_linspace(0, 1, 10);
-    NDArray* y = nda_linspace(0, 1, 15);
-    nda_reshape(x, nda_newShape(3, 2, 1, 5));
-    nda_reshape(y, nda_newShape(2, 3, 5));
+    NDArray* x = nda_linspace(0, 1, 3);
+    NDArray* y = nda_linspace(0, 1, 3);
     
-    test(x->shape, y->shape);
+    nda_reshape(x, nda_newShape(2, 3, 1));
+    nda_reshape(y, nda_newShape(2, 1, 3));
+    
+    nda_debugValue(x);
+    nda_debugValue(y);
+    
+    test(y, x);
     
     /**
     NDArray* y = nda_linspace(0, 1, 9);
