@@ -75,7 +75,7 @@ static TBResultNode* _run_Node(TBGraphSession* session, TBGraph* graph, TBNode* 
             
             break;
         case TBNT_BINARY_OPERATION:
-            
+            return _run_BinaryOperation(session, graph, node);
             break;
         case TBNT_UNARY_OPERATION:
             return _run_UnaryOperation(session, graph, node);
@@ -127,4 +127,33 @@ static TBResultNode* _run_UnaryOperation(TBGraphSession* session, TBGraph* graph
             return _tb_sigmoid(session, graph, node, uhs);
             break;
     }
+}
+
+static TBResultNode* _run_BinaryOperation(TBGraphSession* session, TBGraph* graph, TBNode* node){
+    TBBinaryOperation* op = (TBBinaryOperation*)node->nodePtr;
+    TBResultNode* lhs = _run_Node(session, graph, op->lhs);
+    TBResultNode* rhs = _run_Node(session, graph, op->rhs);
+    
+    switch(op->type){
+            
+        case TBBOT_ADD:
+            return _tb_add(session, graph, node, lhs, rhs);
+            break;
+        case TBBOT_SUB:
+            return NULL;
+            break;
+        case TBBOT_MULT:
+            return NULL;
+            break;
+        case TBBOT_DIV:
+            return NULL;
+            break;
+        case TBBOT_POW:
+            return NULL;
+            break;
+        case TBBOT_DOT:
+            return NULL;
+            break;
+    }
+    return NULL;
 }

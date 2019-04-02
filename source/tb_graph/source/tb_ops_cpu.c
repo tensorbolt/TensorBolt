@@ -56,6 +56,12 @@
 #include <tb_ops.h>
 #include <tb_factory.h>
 
+#if tb_float == float
+#define POW powf
+#else
+#define POW pow
+#endif
+
 /* * * * * *
  * HELPERS *
  * * * * * */
@@ -135,7 +141,7 @@ static inline tb_float _negative(tb_float x){
     return -x;
 }
 
-static void _tb_prepareBroadcast(uint8_t res, NDArray* lhs, NDArray* rhs, NDArray* biggerArray, NDArray* smallerArray, NDArray* arr_res){
+static NDArray* _tb_prepareBroadcast(uint8_t res, NDArray* lhs, NDArray* rhs, NDArray* biggerArray, NDArray* smallerArray){
     NDShape* lhsShape = lhs->shape;
     NDShape* rhsShape = rhs->shape;
     
@@ -171,21 +177,7 @@ static void _tb_prepareBroadcast(uint8_t res, NDArray* lhs, NDArray* rhs, NDArra
     nda_debugShape(vshape);
     
     // creating output arrray
-    arr_res = nda_alloc(vshape);
-    tb_float* arr = arr_res->data;
-    
-    size_t counter = 0;
-    uint64_t big_size = biggerShape->raw_len;
-    uint64_t small_size = smallerShape->raw_len;
-    
-    while(counter < vshape->raw_len){
-        memcpy(arr+counter, smallerArray->data, big_size*sizeof(tb_float));
-        counter += small_size;
-    }
-    
-    nda_debugValue(arr_res);
-    
-    counter = 0;
+    return nda_alloc(vshape);
     
 }
 
@@ -213,18 +205,32 @@ TBResultNode* _tb_add(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDArray* biggerArray = NULL, * smallerArray = NULL;
     NDArray* arr_res = NULL;
     
-    _tb_prepareBroadcast(res, lhs->value, rhs->value, biggerArray, smallerArray, arr_res);
+    arr_res = _tb_prepareBroadcast(res, lhs->value, rhs->value, biggerArray, smallerArray);
     
     ASSERT(arr_res != NULL, "Fatal Error Occured.");
     
+    NDShape* vshape = arr_res->shape;
+
     tb_float* arr = arr_res->data;
-    size_t i = 0;
     
-    for(; i<arr_res->shape->raw_len;i++){
-        arr[i] += nda_vget1D(biggerArray, i);
+    size_t counter = 0;
+    
+    for(; counter<vshape->raw_len;counter++){
+        size_t i = vshape->rank;
+        uint64_t mul = vshape->raw_len;
+        uint64_t counter_tmp = counter;
+        uint64_t* index = calloc(vshape->rank, sizeof(uint64_t));
+        for(; i !=0 ; i--){
+            mul /= vshape->dims[vshape->rank - i];
+            index[vshape->rank - i] = counter_tmp / mul;
+            counter_tmp -= index[vshape->rank - i] * mul;
+        }
+        free(index);
+        
+        arr[counter] = nda_vget(lhs->value, index, vshape) + nda_vget(rhs->value, index, vshape);
     }
     
-    return NULL;
+    return tb_newResultNode(arr_res);
 }
 
 
@@ -232,12 +238,96 @@ TBResultNode* _tb_sub(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
-    return NULL;
+    uint8_t res = nda_shapeCanBroadCast(lhsShape, rhsShape);
+    
+    if(!res){
+        char msg[1024] = {0};
+        char* lhsShapeInfo = nda_shapeToString(lhsShape);
+        char* rhsShapeInfo = nda_shapeToString(rhsShape);
+        snprintf(msg, 1024, "Cannot broadcast shapes %s and %s", lhsShapeInfo, rhsShapeInfo);
+        
+        free(lhsShapeInfo);
+        free(rhsShapeInfo);
+        
+        return tb_newErrorResultNode(TBET_INCOMPATIBLE_DIMENTIONS_EXCEPTION, msg, node, graph);
+    }
+    NDArray* biggerArray = NULL, * smallerArray = NULL;
+    NDArray* arr_res = NULL;
+    
+    arr_res = _tb_prepareBroadcast(res, lhs->value, rhs->value, biggerArray, smallerArray);
+    
+    ASSERT(arr_res != NULL, "Fatal Error Occured.");
+    
+    NDShape* vshape = arr_res->shape;
+    
+    tb_float* arr = arr_res->data;
+    
+    size_t counter = 0;
+    
+    for(; counter<vshape->raw_len;counter++){
+        size_t i = vshape->rank;
+        uint64_t mul = vshape->raw_len;
+        uint64_t counter_tmp = counter;
+        uint64_t* index = calloc(vshape->rank, sizeof(uint64_t));
+        for(; i !=0 ; i--){
+            mul /= vshape->dims[vshape->rank - i];
+            index[vshape->rank - i] = counter_tmp / mul;
+            counter_tmp -= index[vshape->rank - i] * mul;
+        }
+        free(index);
+        
+        arr[counter] = nda_vget(lhs->value, index, vshape) - nda_vget(rhs->value, index, vshape);
+    }
+    
+    return tb_newResultNode(arr_res);
 }
 
 TBResultNode* _tb_div(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* lhs, TBResultNode* rhs){
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
+    
+    uint8_t res = nda_shapeCanBroadCast(lhsShape, rhsShape);
+    
+    if(!res){
+        char msg[1024] = {0};
+        char* lhsShapeInfo = nda_shapeToString(lhsShape);
+        char* rhsShapeInfo = nda_shapeToString(rhsShape);
+        snprintf(msg, 1024, "Cannot broadcast shapes %s and %s", lhsShapeInfo, rhsShapeInfo);
+        
+        free(lhsShapeInfo);
+        free(rhsShapeInfo);
+        
+        return tb_newErrorResultNode(TBET_INCOMPATIBLE_DIMENTIONS_EXCEPTION, msg, node, graph);
+    }
+    NDArray* biggerArray = NULL, * smallerArray = NULL;
+    NDArray* arr_res = NULL;
+    
+    arr_res = _tb_prepareBroadcast(res, lhs->value, rhs->value, biggerArray, smallerArray);
+    
+    ASSERT(arr_res != NULL, "Fatal Error Occured.");
+    
+    NDShape* vshape = arr_res->shape;
+    
+    tb_float* arr = arr_res->data;
+    
+    size_t counter = 0;
+    
+    for(; counter<vshape->raw_len;counter++){
+        size_t i = vshape->rank;
+        uint64_t mul = vshape->raw_len;
+        uint64_t counter_tmp = counter;
+        uint64_t* index = calloc(vshape->rank, sizeof(uint64_t));
+        for(; i !=0 ; i--){
+            mul /= vshape->dims[vshape->rank - i];
+            index[vshape->rank - i] = counter_tmp / mul;
+            counter_tmp -= index[vshape->rank - i] * mul;
+        }
+        free(index);
+        
+        arr[counter] = nda_vget(lhs->value, index, vshape) / nda_vget(rhs->value, index, vshape);
+    }
+    
+    return tb_newResultNode(arr_res);
     
     return NULL;
 }
@@ -253,12 +343,98 @@ TBResultNode* _tb_mul(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
+    uint8_t res = nda_shapeCanBroadCast(lhsShape, rhsShape);
+    
+    if(!res){
+        char msg[1024] = {0};
+        char* lhsShapeInfo = nda_shapeToString(lhsShape);
+        char* rhsShapeInfo = nda_shapeToString(rhsShape);
+        snprintf(msg, 1024, "Cannot broadcast shapes %s and %s", lhsShapeInfo, rhsShapeInfo);
+        
+        free(lhsShapeInfo);
+        free(rhsShapeInfo);
+        
+        return tb_newErrorResultNode(TBET_INCOMPATIBLE_DIMENTIONS_EXCEPTION, msg, node, graph);
+    }
+    NDArray* biggerArray = NULL, * smallerArray = NULL;
+    NDArray* arr_res = NULL;
+    
+    arr_res = _tb_prepareBroadcast(res, lhs->value, rhs->value, biggerArray, smallerArray);
+    
+    ASSERT(arr_res != NULL, "Fatal Error Occured.");
+    
+    NDShape* vshape = arr_res->shape;
+    
+    tb_float* arr = arr_res->data;
+    
+    size_t counter = 0;
+    
+    for(; counter<vshape->raw_len;counter++){
+        size_t i = vshape->rank;
+        uint64_t mul = vshape->raw_len;
+        uint64_t counter_tmp = counter;
+        uint64_t* index = calloc(vshape->rank, sizeof(uint64_t));
+        for(; i !=0 ; i--){
+            mul /= vshape->dims[vshape->rank - i];
+            index[vshape->rank - i] = counter_tmp / mul;
+            counter_tmp -= index[vshape->rank - i] * mul;
+        }
+        free(index);
+        
+        arr[counter] = nda_vget(lhs->value, index, vshape) * nda_vget(rhs->value, index, vshape);
+    }
+    
+    return tb_newResultNode(arr_res);
+    
     return NULL;
 }
 
 TBResultNode* _tb_pow(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* lhs, TBResultNode* rhs){
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
+    
+    uint8_t res = nda_shapeCanBroadCast(lhsShape, rhsShape);
+    
+    if(!res){
+        char msg[1024] = {0};
+        char* lhsShapeInfo = nda_shapeToString(lhsShape);
+        char* rhsShapeInfo = nda_shapeToString(rhsShape);
+        snprintf(msg, 1024, "Cannot broadcast shapes %s and %s", lhsShapeInfo, rhsShapeInfo);
+        
+        free(lhsShapeInfo);
+        free(rhsShapeInfo);
+        
+        return tb_newErrorResultNode(TBET_INCOMPATIBLE_DIMENTIONS_EXCEPTION, msg, node, graph);
+    }
+    NDArray* biggerArray = NULL, * smallerArray = NULL;
+    NDArray* arr_res = NULL;
+    
+    arr_res = _tb_prepareBroadcast(res, lhs->value, rhs->value, biggerArray, smallerArray);
+    
+    ASSERT(arr_res != NULL, "Fatal Error Occured.");
+    
+    NDShape* vshape = arr_res->shape;
+    
+    tb_float* arr = arr_res->data;
+    
+    size_t counter = 0;
+    
+    for(; counter<vshape->raw_len;counter++){
+        size_t i = vshape->rank;
+        uint64_t mul = vshape->raw_len;
+        uint64_t counter_tmp = counter;
+        uint64_t* index = calloc(vshape->rank, sizeof(uint64_t));
+        for(; i !=0 ; i--){
+            mul /= vshape->dims[vshape->rank - i];
+            index[vshape->rank - i] = counter_tmp / mul;
+            counter_tmp -= index[vshape->rank - i] * mul;
+        }
+        free(index);
+        
+        arr[counter] = POW(nda_vget(lhs->value, index, vshape), nda_vget(rhs->value, index, vshape));
+    }
+    
+    return tb_newResultNode(arr_res);
     
     return NULL;
 }
