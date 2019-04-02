@@ -35,9 +35,6 @@ void test(NDArray* lhs, NDArray* rhs){
     NDShape* biggerShape  = res==1?lhsShape:rhsShape;
     NDShape* smallerShape = res==1?rhsShape:lhsShape;
     
-    NDArray* biggerArray  = res==1?lhs:rhs;
-    NDArray* smallerArray = res==1?rhs:lhs;
-    
     uint64_t vshape_len = biggerShape->rank;
     uint64_t num_pads = biggerShape->rank-smallerShape->rank;
     
@@ -51,7 +48,6 @@ void test(NDArray* lhs, NDArray* rhs){
     }
     
     for(; i < vshape_len; i++,j++){
-        printf("%lld, %lld\n", biggerShape->dims[i], smallerShape->dims[j]);
         if(biggerShape->dims[i] > smallerShape->dims[j]){
             array[i] = biggerShape->dims[i];
         }
@@ -69,6 +65,7 @@ void test(NDArray* lhs, NDArray* rhs){
     size_t counter = 0;
     
     
+    
     for(; counter<vshape->raw_len;counter++){
         size_t i = vshape->rank;
         uint64_t mul = vshape->raw_len;
@@ -79,11 +76,12 @@ void test(NDArray* lhs, NDArray* rhs){
             index[vshape->rank - i] = counter_tmp / mul;
             counter_tmp -= index[vshape->rank - i] * mul;
         }
+        free(index);
         
-        //printf("index[%lld, %lld] = %f\n", index[0], index[1], nda_vget(rhs, index, vshape));
+        
+        printf("index[%lld, %lld %lld] = %f\n", index[0], index[1], index[2], nda_vget(rhs, index, vshape));
         arr[counter] += nda_vget(lhs, index, vshape) + nda_vget(rhs, index, vshape);
     }
-    
     nda_debugValue(arr_res);
 }
 
@@ -91,13 +89,13 @@ int main(){
     NDArray* x = nda_linspace(0, 1, 3);
     NDArray* y = nda_linspace(0, 1, 3);
     
-    nda_reshape(x, nda_newShape(2, 3, 1));
-    nda_reshape(y, nda_newShape(2, 1, 3));
+    nda_reshape(x, nda_newShape(2, 1, 3));
+    nda_reshape(y, nda_newShape(2, 3, 1));
     
     nda_debugValue(x);
     nda_debugValue(y);
     
-    test(y, x);
+    test(x, y);
     
     /**
     NDArray* y = nda_linspace(0, 1, 9);

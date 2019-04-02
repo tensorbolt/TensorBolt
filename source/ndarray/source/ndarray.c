@@ -174,16 +174,16 @@ tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape){
     
     uint64_t dim_counter = 1;
     uint64_t i = shape->rank-1;
-    uint64_t data_index = index[i];
+    int diff = vshape->rank-shape->rank;
+    uint64_t data_index = index[i+diff];
     
-    if(index[i] >= shape->dims[i]){
-        data_index = 0;
+    if(index[i+diff] >= shape->dims[i]){
+        data_index = data_index%shape->dims[i];
     }
     
-    int diff = vshape->rank-shape->rank;
     
-    for(; i > (diff); i--){
-        uint64_t id = index[i-1];
+    for(; i >= (1); i--){
+        uint64_t id = index[i+diff-1];
         if (id >= shape->dims[i-1]){
             id %= shape->dims[i-1];
         }
