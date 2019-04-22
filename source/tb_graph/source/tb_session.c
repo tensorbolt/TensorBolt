@@ -32,6 +32,15 @@ TBGraphSession* tb_createLocalCPUSession(){
 TBResultNode* tb_runSession(TBGraphSession* session, TBGraph* graph, TBGraphNodeParam** params){
     ASSERT(graph != NULL, "Cannot run session on a NULL Graph");
     ASSERT(graph->root != NULL, "Root node of the graph %s must be NULL", graph->name);
+    
+    if(params != NULL){
+        size_t i = 0;
+        
+        for(;(params[i]->node != NULL) && (params[i]->var_name != NULL);i++){
+            tb_graphSetVar(graph, params[i]->node, params[i]->var_name);
+        }
+    }
+    
     TBNode* root = graph->root;
     
     tb_storeNodesInGraph(graph, root);
@@ -72,17 +81,21 @@ static TBResultNode* _run_Node(TBGraphSession* session, TBGraph* graph, TBNode* 
             res = tb_newResultNode(((TBConstant*)node->nodePtr)->value);
             break;
         case TBNT_GRAPH:
+        {
+            TBGraphNode * graphNode = (TBGraphNode*)node->nodePtr;
+            TBGraph* g = graphNode->graph;
             
+            ASSERT(g != NULL, "Cannot start NULL nested graph");
+            
+            res = tb_runSession(session, g, graphNode->params);
             break;
+        }
         case TBNT_BINARY_OPERATION:
             return _run_BinaryOperation(session, graph, node);
-            break;
         case TBNT_UNARY_OPERATION:
             return _run_UnaryOperation(session, graph, node);
-            break;
         case TBNT_AXIS_BOUND_OPERATION:
-            
-            break;
+            return _run_AxisBoundOperation(session, graph, node);
     }
     
     return res;
@@ -93,7 +106,6 @@ static TBResultNode* _run_UnaryOperation(TBGraphSession* session, TBGraph* graph
     TBResultNode* uhs = _run_Node(session, graph, op->uhs);
     
     switch(op->type){
-            
         case TBUOT_MINUS:
             return _tb_negative(session, graph, node, uhs);
         case TBUOT_TRANSPOSE:
@@ -135,25 +147,28 @@ static TBResultNode* _run_BinaryOperation(TBGraphSession* session, TBGraph* grap
     TBResultNode* rhs = _run_Node(session, graph, op->rhs);
     
     switch(op->type){
-            
         case TBBOT_ADD:
             return _tb_add(session, graph, node, lhs, rhs);
             break;
         case TBBOT_SUB:
-            return NULL;
+            return _tb_sub(session, graph, node, lhs, rhs);
             break;
         case TBBOT_MULT:
-            return NULL;
+            return _tb_mul(session, graph, node, lhs, rhs);
             break;
         case TBBOT_DIV:
-            return NULL;
+            return _tb_div(session, graph, node, lhs, rhs);
             break;
         case TBBOT_POW:
-            return NULL;
+            return _tb_pow(session, graph, node, lhs, rhs);
             break;
         case TBBOT_DOT:
-            return NULL;
+            return _tb_dot(session, graph, node, lhs, rhs);
             break;
     }
+    return NULL;
+}
+
+static TBResultNode* _run_AxisBoundOperation(TBGraphSession* session, TBGraph* graph, TBNode* node){
     return NULL;
 }

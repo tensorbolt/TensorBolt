@@ -36,67 +36,42 @@
  ****************************************************************************/
 
 /**
- * @file tb_errors.h
+ * @file ndarray.h
  * @author Soulaymen Chouri
  * @date March 16 2019
- * @brief File containing error handeling structures.
- * This file provides list of possible errors during graph processing
+ * @brief File containing ndarray standard backend implementation aka tensors metadata.
  */
 
-#ifndef _TB_ERRORS_H_
-#define _TB_ERRORS_H_
+#ifndef _TB_NDARRAY_STD_BACKEND_H_
+#define _TB_NDARRAY_STD_BACKEND_H_
 
+#include <stdint.h>
+#include <stdarg.h>
 
 /**
- * \brief List of errors that can occure during computations
+ * \brief Tensor Shape
  */
-typedef enum TBErrorType {
-	/**
-	 * \brief incompatible arguments given i.e devide a vector by a matrix, 
-	 *        like seriously .. what do you think you are doing?
-	 */
-	TBET_INCOMPATIBLE_ARGS_EXCEPTION = 0,
-	
-	/**
-	 * \brief arguments' types are fine, yet their dimentions are not compatible.
-	 */
-	TBET_INCOMPATIBLE_DIMENTIONS_EXCEPTION,
-	
-	/**
-	 * \brief double overflow exception
-	 */
-	TBET_OVERFLOW_EXCEPTION,
-	
-	/**
-	 * \brief Variable not present in the current graph
-	 */
-	TBET_VARIABLE_DOES_NOT_EXIST,
-	
-	/**
-	 * \brief Operation is not yet supported.
-	 */
-	TBET_OPERATION_NOT_IMPLEMENTED,
-	
-	/**
-	 * \brief Did you just shoot yourself in the foot?
-	 */
-	TBET_DIVIDE_BY_ZERO,
-	
-	/**
-	 * \brief Attempting to compute a variable node value when the graph instance is NULL, usually when calling `computeRawNode`
-	 */
-	TBET_NO_GRAPH_INSTANCE,
-}TBErrorType;
+typedef struct NDShape {
+    uint64_t rank;     /**< Total number of dimentions */
+    uint64_t* dims;    /**< Dimensions */
+    uint64_t raw_len;  /**< Total number of elements */
+    uint64_t* strides;
+}NDShape;
 
-#define TB_MAX_ERROR_TYPE TBET_NO_GRAPH_INSTANCE
+/**
+ * \brief Treats NDShape as a stack to pop elements, does not modify the original shape
+ */
+typedef struct NDShapeStack {
+    NDShape* shape;       /**< Pointer to shape */
+    uint64_t i;           /**< Stack Pointer */
+}NDShapeStack;
 
-
-
-typedef struct TBError {
-	TBErrorType errorType;      /**< Which type of error has occured. */
-	struct TBNode* faultyNode;  /**< Which node caused the error. */
-    struct TBGraph* graph;      /**< Which Graph the exception occured */
-	const char* message;              /**< Error message & description */
-}TBError;
+/**
+ * \brief Tensor data structure
+ */
+typedef struct NDArray {
+    tb_float* data;  /**< Raw data as contigious array */
+    NDShape* shape;  /**< Shape of the tensor */
+}NDArray;
 
 #endif

@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <tb_graph.h>
 #include <ndarray.h>
+#include <ndarray_std.h>
+
+#include <tb_graph.h>
 #include <tb_factory.h>
 
 #define TB_ALLOC_NODE(node, t, grad, ptrVal)\
@@ -37,7 +39,11 @@ TBNode* tb_newConstantNode(NDArray* array){
  */
 TBNode* tb_newGraphNode(TBGraph* graph, TBGraphNodeParam** params){
 	ASSERT(params == NULL, "second argument should be NULL as it is not supported yet");
-	TB_ALLOC_NODE(node, TBNT_GRAPH, 1, graph);
+    TBGraphNode * graphNode = calloc(1, sizeof(TBGraphNode));
+    graphNode->graph = graph;
+    graphNode->params = params;
+    
+	TB_ALLOC_NODE(node, TBNT_GRAPH, 1, graphNode);
 	
 	return node;
 }

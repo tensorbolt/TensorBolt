@@ -12,10 +12,11 @@ set( EXTERNAL_DEPS
 )
 
 set (PROJECT_SRCS
-	${PROJECT_SOURCE_DIR}/source/ndarray.c
+	${PROJECT_SOURCE_DIR}/source/ndarray_std.c
 )
 set (PROJECT_HEADERS
 	${PROJECT_SOURCE_DIR}/include/ndarray.h
+	${PROJECT_SOURCE_DIR}/include/ndarray_std.h
 )
 
 include_directories(${PROJECT_INCLUDE_DIR})

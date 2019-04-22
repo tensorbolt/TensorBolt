@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include <ndarray.h>
+#include <ndarray_std.h>
 
 #include <tb_session.h>
 #include <tb_graph.h>
@@ -101,7 +102,7 @@ void main_test(){
 }
 
 
-int main(){
+int main__(){
     
     NDArray* x = nda_linspace(0, 1, 16);
     NDArray* y = nda_linspace(0, 1, 2);
@@ -109,7 +110,10 @@ int main(){
     nda_reshape(x, nda_newShape(3, 2, 4, 2));
     nda_reshape(y, nda_newShape(2, 1, 2));
     
-    TBNode* n1 = tb_newUnaryOpNode(TBUOT_LOG, tb_newBinaryOpNode(TBBOT_ADD, tb_newConstantNode(x), tb_newConstantNode(y)));
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_ADD, tb_newConstantNode(x), tb_newConstantNode(y));
+    TBGraph* nestedGraph = tb_newGraph("nested", n2);
+    
+    TBNode* n1 = tb_newUnaryOpNode(TBUOT_RELU, tb_newGraphNode(nestedGraph, NULL));
     
     TBGraph* g = tb_newGraph("test", n1);
     
@@ -117,5 +121,26 @@ int main(){
     
     nda_debugValue(res->value);
      
-    return 1;
+    return 0;
+}
+
+int main_(){
+    NDArray* x = nda_linspace(0, 1, 6);
+    nda_reshape(x, nda_newShape(2, 2, 3));
+    nda_debugValue(x);
+    
+    size_t i = 0;
+    size_t j = 0;
+    
+    for (; i < 2; i++){
+        for(j = 0; j < 3; j++){
+            uint64_t index[] = {0, 0};
+            index[0] = i;
+            index[1] = j;
+            
+            printf("%zu, %zu = %f\n", i, j, nda_get(x, index));
+        }
+    }
+    
+    return 0;
 }

@@ -130,7 +130,7 @@ typedef struct TBNode {
  * \brief Result of an operation
  */
 typedef struct TBResultNode {
-	NDArray* value;                /**< Tensor value */
+	struct NDArray* value;                /**< Tensor value */
 	TBError* error;                /**< Error pointer in case of exception during the execution */
 }TBResultNode;
 
@@ -146,7 +146,10 @@ typedef struct TBGraph {
 
 
 /**
- * \brief pair of node and names passed to nested graphs
+ * \brief pair of node and names passed to nested graphs,
+ * since we do not pass the length of this array to any of
+ * the functions using this structure, we check for {NULL, NULL}
+ * as the end of the list.
  */
 typedef struct TBGraphNodeParam {
 	struct TBNode* node;           /**< Node pointer to be bounded with the next variable name */

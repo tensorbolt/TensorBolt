@@ -62,7 +62,7 @@ TBNode* tb_newVarNode(char* name);
  * \param[in] array ND Array
  * \return new variable node
  */
-TBNode* tb_newConstantNode(NDArray* array);
+TBNode* tb_newConstantNode(struct NDArray* array);
 
 /**
  * \brief Creates a new graph node
@@ -102,7 +102,7 @@ TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t
  * \brief Creates a new result node (do not create in case of error)
  * \param[in] array NDArray, value of the result
  */
-TBResultNode* tb_newResultNode(NDArray* array);
+TBResultNode* tb_newResultNode(struct NDArray* array);
 
 /**
  * \brief Create a runtime error result node, which does NOT stop the execution! i.e Not an assertion

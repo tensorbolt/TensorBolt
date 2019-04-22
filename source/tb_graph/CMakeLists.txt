@@ -31,7 +31,7 @@ set (PROJECT_HEADERS
 
 include_directories(${PROJECT_INCLUDE_DIR})
 
-add_executable(tb_graph
+add_library(tb_graph
 	${EXTERNAL_DEPS}
 	${PROJECT_SRCS}
 	${PROJECT_HEADERS}
@@ -41,3 +41,8 @@ add_executable(tb_graph
 target_link_libraries(tb_graph 
 	ndarray
 )
+
+install(TARGETS tb_graph
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+

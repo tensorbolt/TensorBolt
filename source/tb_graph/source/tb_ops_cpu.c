@@ -50,6 +50,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <ndarray.h>
+#include <ndarray_std.h>
+
 #include <tb_session.h>
 #include <tb_graph.h>
 #include <tb_operation.h>
@@ -478,7 +481,7 @@ TBResultNode* _tb_argmin(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBR
 #define TB_UNARY_OP_MAP(func_name, elt_func)\
 TBResultNode* func_name(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs){\
     NDArray* x = nda_copy(uhs->value);\
-    _td_map_array(uhs->value->data, x->data, nda_getTotalSize(x->shape), elt_func);\
+    _td_map_array(uhs->value->data, x->data, x->shape->raw_len, elt_func);\
 \
     TBResultNode* res = tb_newResultNode(x);\
 \

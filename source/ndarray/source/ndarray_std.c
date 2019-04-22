@@ -50,6 +50,7 @@
 #include <assert.h>
 
 #include "ndarray.h"
+#include "ndarray_std.h"
 
 void nda_assert(int cond, const char * rawcond, const char* func_name, const char * fmt, ...){
     if(cond)
@@ -103,6 +104,13 @@ NDShape* nda_newShape(uint64_t rank, ...){
     va_end( argPtr );
     
     shape->raw_len = nda_getTotalSize(shape);
+    
+    shape->strides = calloc(rank, sizeof(uint64_t));
+    shape->strides[rank-1] = 1;
+    
+    for(i = rank-1; i > 0; i--){
+        shape->strides[i-1] = shape->dims[i]*shape->strides[i];
+    }
 
     return shape;
 }
@@ -113,6 +121,14 @@ NDShape* nda_newShapeFromArray(uint64_t rank, uint64_t* dims){
     shape->dims = dims;
     shape->raw_len = nda_getTotalSize(shape);
     
+    shape->strides = calloc(rank, sizeof(uint64_t));
+    shape->strides[rank-1] = 1;
+    
+    size_t i = 0;
+    for(i = rank-1; i > 0; i--){
+        shape->strides[i-1] = shape->dims[i]*shape->strides[i];
+    }
+    
     return shape;
 }
 
@@ -122,12 +138,16 @@ NDShape* nda_newShapeFromArrayCopy(uint64_t rank, uint64_t* dims){
 }
 
 void nda_debugShape(NDShape* shape){
-    printf("Tensor{ .rank = %llu, ", shape->rank);
+    printf("Tensor{ .rank = %llu, \n\t", shape->rank);
     
     size_t i = 0;
     
     for(; i < shape->rank; i++){
         printf(".dims[%zu] = %llu, ", i, shape->dims[i]);
+    }
+    printf("\n\t");
+    for(i=0; i < shape->rank; i++){
+        printf(".stride[%zu] = %llu, ", i, shape->strides[i]);
     }
 
     printf("}\n");
@@ -155,14 +175,13 @@ char* nda_shapeToString(NDShape* shape){
 tb_float nda_get(NDArray* array, uint64_t* index){
     NDShape* shape = array->shape;
     
-    uint64_t dim_counter = 1;
-    uint64_t i = shape->rank - 1;
-    uint64_t data_index = index[i];
+    uint64_t i = 0;
+    uint64_t data_index = 0;
     
-    for(; i > 0; i--){
+    for(; i < shape->rank; i++){
         ASSERT(index[i] < shape->dims[i], "Cannot index array with index %lld > dimension %lld in axis %lld", index[i], shape->dims[i], i);
-        dim_counter *= shape->dims[i];
-        data_index += index[i-1]*dim_counter;
+        
+        data_index += index[i]*shape->strides[i];
     }
     
     return array->data[data_index];
@@ -172,23 +191,16 @@ tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape){
     
     NDShape* shape = array->shape;
     
-    uint64_t dim_counter = 1;
-    uint64_t i = shape->rank-1;
+    uint64_t i = 0;
     int diff = vshape->rank-shape->rank;
-    uint64_t data_index = index[i+diff];
+    uint64_t data_index = 0;
     
-    if(index[i+diff] >= shape->dims[i]){
-        data_index = data_index%shape->dims[i];
-    }
-    
-    
-    for(; i >= (1); i--){
-        uint64_t id = index[i+diff-1];
-        if (id >= shape->dims[i-1]){
-            id %= shape->dims[i-1];
+    for(; i < shape->rank; i++){
+        uint64_t id = index[i+diff];
+        if (id >= shape->dims[i]){
+            id %= shape->dims[i];
         }
-        dim_counter *= shape->dims[i];
-        data_index += id*dim_counter;
+        data_index += id*shape->strides[i];
     }
     
     return array->data[data_index];
@@ -240,6 +252,10 @@ NDShape* nda_copyShape(NDShape* shape){
     shape2->rank = shape->rank;
     shape2->dims = calloc(shape->rank, sizeof(uint64_t));
     memcpy(shape2->dims, shape->dims, shape->rank*sizeof(uint64_t));
+    
+    shape2->strides = calloc(shape->rank, sizeof(uint64_t));
+    memcpy(shape2->strides, shape->strides, shape->rank*sizeof(uint64_t));
+    
     shape2->raw_len = shape->raw_len;
     
     return shape2;

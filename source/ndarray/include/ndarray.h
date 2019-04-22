@@ -40,6 +40,7 @@
  * @author Soulaymen Chouri
  * @date March 16 2019
  * @brief File containing ndarray aka tensors metadata.
+ * This file can be extended to support multiple backends
  */
 
 #ifndef _TB_NDARRAY_H_
@@ -77,19 +78,12 @@ typedef float tb_float;
 /**
  * \brief Tensor Shape
  */
-typedef struct NDShape {
-    uint64_t rank;     /**< Total number of dimentions */
-    uint64_t* dims;    /**< Dimensions */
-    uint64_t raw_len;  /**< Total number of elements */
-}NDShape;
+struct NDShape;
 
 /**
  * \brief Treats NDShape as a stack to pop elements, does not modify the original shape
  */
-typedef struct NDShapeStack {
-    NDShape* shape;       /**< Pointer to shape */
-    uint64_t i;           /**< Stack Pointer */
-}NDShapeStack;
+struct NDShapeStack;
 
 /**
  * \brief Unline other factory pattern object, the stack is usually allocated on the stack (in contrast to heap)
@@ -97,21 +91,21 @@ typedef struct NDShapeStack {
  * \param [in/out] stack Allocated stack to initialize
  * \param [in] shape Shape to bind to the stack
  */
-void nda_ShapeStackInit(NDShapeStack* stack, NDShape* shape);
+void nda_ShapeStackInit(struct NDShapeStack* stack, struct NDShape* shape);
 
 /**
  * \brief Checks if a shape stack can still popped further more
  * \param[in] stack Stack to check
  * \return Boolean, true if the stack can be popped further more, false otherwise.
  */
-uint8_t nda_ShapeStackCanPop(NDShapeStack* stack);
+uint8_t nda_ShapeStackCanPop(struct NDShapeStack* stack);
 
 /**
  * \brief Pops the next element in the stack, does not modify the shape but updates the index in the stack
  * \param[in/out] stack Stack from which to pop the element
  * \return Dimension of the shape in the stack index
  */
-uint64_t nda_ShapeStackPop(NDShapeStack* stack);
+uint64_t nda_ShapeStackPop(struct NDShapeStack* stack);
 
 /**
  * Array location
@@ -124,15 +118,7 @@ typedef enum NDArrayLocation {
 /**
  * \brief Tensor data structure
  */
-typedef struct NDArray {
-#ifdef TB_USE_OPENCL
-    NDArrayLocation loc;
-	CCLBuffer* buf;
-#endif
-
-    tb_float* data;  /**< Raw data as contigious array */
-    NDShape* shape;  /**< Shape of the tensor */
-}NDArray;
+struct NDArray;
 
 /**
  * Creates a new shape from the given elements dimensions
@@ -140,7 +126,7 @@ typedef struct NDArray {
  * \param[in] ... list of dimensions (variadic parameters)
  * \return new NDShape
  */
-NDShape* nda_newShape(uint64_t rank, ...);
+struct NDShape* nda_newShape(uint64_t rank, ...);
 
 /**
  * Creates a new shape from the given elements dimensions as array
@@ -149,7 +135,7 @@ NDShape* nda_newShape(uint64_t rank, ...);
  *            the shape is destroyed. len(array) must be equal to rank
  * \return new NDShape
  */
-NDShape* nda_newShapeFromArray(uint64_t rank, uint64_t* dims);
+struct NDShape* nda_newShapeFromArray(uint64_t rank, uint64_t* dims);
 
 /**
  * Creates a new shape from the given elements dimensions as array
@@ -158,20 +144,20 @@ NDShape* nda_newShapeFromArray(uint64_t rank, uint64_t* dims);
  *            len(array) must be equal to rank
  * \return new NDShape
  */
-NDShape* nda_newShapeFromArrayCopy(uint64_t rank, uint64_t* dims);
+struct NDShape* nda_newShapeFromArrayCopy(uint64_t rank, uint64_t* dims);
 
 /**
  * \brief Prints tensor shape to stdout
  * \param[in] shape TensorShape to display
  */
-void nda_debugShape(NDShape* shape);
+void nda_debugShape(struct NDShape* shape);
 
 /**
  * \brief Creates and Allocates a shape with the same properties of the given one
  * \param shape Shape to copy
  * \return New allocated shape
  */
-NDShape* nda_copyShape(NDShape* shape);
+struct NDShape* nda_copyShape(struct NDShape* shape);
 
 /**
  * \brief Verifies if two shapes can be broadcasted
@@ -186,34 +172,34 @@ NDShape* nda_copyShape(NDShape* shape);
  * \param[in] shape2 Shape of the second array
  * \return true if shapes can be broadcasted, false otherwise.
  */
-uint8_t nda_shapeCanBroadCast(NDShape* shape1, NDShape* shape2);
+uint8_t nda_shapeCanBroadCast(struct NDShape* shape1, struct NDShape* shape2);
 
 /**
  * \brief Generate a string representation of the shape, which can be used for debugging or generating errors
  * \param[in] shape NDShape to process
  * \return string representation of the shape
  */
-char* nda_shapeToString(NDShape* shape);
+char* nda_shapeToString(struct NDShape* shape);
 
 /**
  * \brief Prints tensor value to stdout
  * \param[in] tensor Tensor to display
  */
-void nda_debugValue(NDArray* tensor);
+void nda_debugValue(struct NDArray* tensor);
 
 /**
  * \brief Calculate the total number of elements in a tensor shape
  * \param[in] shape Tensor shape to process
  * \return Total number of elements in the array (Product of dimensions)
  */
-uint64_t nda_getTotalSize(NDShape* shape);
+uint64_t nda_getTotalSize(struct NDShape* shape);
 
 /**
  * \brief Creates an empty zeroed tensor
  * \param shape initial shape
  * \return 0 initialized tensor
  */
-NDArray* nda_alloc(NDShape* shape);
+struct NDArray* nda_alloc(struct NDShape* shape);
 
 /**
  * \brief Return evenly spaced numbers over a specified interval.
@@ -222,27 +208,27 @@ NDArray* nda_alloc(NDShape* shape);
  * \param[in] n number of elements
  * \return evenly spaced numbers over the specified interval.
  */
-NDArray* nda_linspace(tb_float a, tb_float b, uint64_t n);
+struct NDArray* nda_linspace(tb_float a, tb_float b, uint64_t n);
 
 /**
  * \brief copies an existent tensor, memory must be explicitly freed.
  * \param[in] x tensor to copy
  * \return copy of x, must be explicitly freed
  */
-NDArray* nda_copy(NDArray* x);
+struct NDArray* nda_copy(struct NDArray* x);
 
 /**
  * \brief reshape an ndarray, old shape is freed.
  * \param[in/out] x ndarray to reshape
  * \param[in] shape new shape
  */
-void nda_reshape(NDArray* x, NDShape* shape);
+void nda_reshape(struct NDArray* x, struct NDShape* shape);
 
 /**
  * \brief frees an NDArray alongside its shape
  * \param [in/out] array data to free
  */
-void nda_free(NDArray* array);
+void nda_free(struct NDArray* array);
 
 /**
  * \brief Returns the value of an array
@@ -250,7 +236,7 @@ void nda_free(NDArray* array);
  * \param[in] index Array of dims of the element, len(index) must be equal to to the rank of the array
  * \return array[index]
  */
-tb_float nda_get(NDArray* array, uint64_t* index);
+tb_float nda_get(struct NDArray* array, uint64_t* index);
 
 /**
  * \brief Returns the value of array throughout a virtual shape. The virtual shape
@@ -262,7 +248,7 @@ tb_float nda_get(NDArray* array, uint64_t* index);
  * \param[in] vshape Virtual padded shape
  * \return array[index%vshape]
  */
-tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape);
+tb_float nda_vget(struct NDArray* array, uint64_t* index, struct NDShape* vshape);
 
 /**
  * \brief Returns the value of an array through 1d Inde
@@ -270,7 +256,7 @@ tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape);
  * \param[in] index 1D index to fetch
  * \return array[index]
  */
-tb_float nda_get1D(NDArray* array, uint64_t index);
+tb_float nda_get1D(struct NDArray* array, uint64_t index);
 
 /**
  * \brief Returns the value of array throughout a 1D index. If the index has a value higher
@@ -279,7 +265,7 @@ tb_float nda_get1D(NDArray* array, uint64_t index);
  * \param[in] index 1D index to fetch
  * \return array[index%vshape]
  */
-tb_float nda_vget1D(NDArray* array, uint64_t index);
+tb_float nda_vget1D(struct NDArray* array, uint64_t index);
 
 
 #endif
