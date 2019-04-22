@@ -39,7 +39,7 @@
  * @file tb_ops
  * @author Soulaymen Chouri
  * @date March 21 2019
- * @brief File containing concrete implementation of graph operations on the CPU.
+ * @brief File containing generic graph operations that must be overrided.
  */
 
 #ifndef _TB_OPS_H_

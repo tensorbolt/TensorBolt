@@ -130,7 +130,7 @@ typedef struct TBNode {
  * \brief Result of an operation
  */
 typedef struct TBResultNode {
-	struct NDArray* value;                /**< Tensor value */
+	struct NDArray* value;         /**< Tensor value */
 	TBError* error;                /**< Error pointer in case of exception during the execution */
 }TBResultNode;
 

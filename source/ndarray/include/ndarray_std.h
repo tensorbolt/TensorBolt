@@ -50,12 +50,13 @@
 
 /**
  * \brief Tensor Shape
+ * DO NOT MANUALLY MODIFY ANY DATA ON THIS STRUCTURE. I will find you.
  */
 typedef struct NDShape {
     uint64_t rank;     /**< Total number of dimentions */
     uint64_t* dims;    /**< Dimensions */
     uint64_t raw_len;  /**< Total number of elements */
-    uint64_t* strides;
+    uint64_t* strides; /**< Strides, used for indexing */
 }NDShape;
 
 /**

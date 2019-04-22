@@ -63,11 +63,45 @@ MU_TEST(test_shape4){
     ASSERT_SHAPE_STRIDE_EQ(shape, strides);
 }
 
+MU_TEST(test_reshape1){
+    NDArray* x = nda_linspace(0, 1, 6);
+    mu_assert_int_eq(1, x->shape->rank);
+    mu_assert_int_eq(6, x->shape->dims[0]);
+    
+    nda_reshape(x, nda_newShape(2, 2, 3));
+    mu_assert_int_eq(2, x->shape->rank);
+    uint64_t dims[] = {2, 3};
+    
+    ASSERT_SHAPE_EQ(x->shape, dims);
+}
+
+MU_TEST(test_linspace){
+    NDArray* x = nda_linspace(0, 1, 6);
+    nda_reshape(x, nda_newShape(2, 2, 3));
+
+    size_t i = 0;
+    size_t j = 0;
+
+    tb_float values[2][3] = {{0. , 0.2, 0.4}, {0.6, 0.8, 1.}};
+    
+    for (; i < 2; i++){
+        for(j = 0; j < 3; j++){
+            uint64_t index[] = {0, 0};
+            index[0] = i;
+            index[1] = j;
+            
+            mu_assert_double_eq(values[i][j], nda_get(x, index));
+        }
+    }
+}
+
 MU_TEST_SUITE(nda_array_test) {
     MU_RUN_TEST(test_shape1);
     MU_RUN_TEST(test_shape2);
     MU_RUN_TEST(test_shape3);
     MU_RUN_TEST(test_shape4);
+    MU_RUN_TEST(test_reshape1);
+    MU_RUN_TEST(test_linspace);
 }
 
 void runAllTests(){
@@ -77,7 +111,7 @@ void runAllTests(){
 
 
 int main(){
-    printf("<TensorBolt & NDArray Test Units>\n\nRunning tests\n");
+    printf("<TensorBolt & NDArray Test Units>\n\n");
     
     runAllTests();
 
