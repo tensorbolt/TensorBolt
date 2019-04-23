@@ -49,6 +49,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
+
+#include <cblas.h>
 
 #include <ndarray.h>
 #include <ndarray_std.h>
@@ -167,7 +170,7 @@ static NDArray* _tb_prepareBroadcast(uint8_t res, NDArray* lhs, NDArray* rhs, ND
     }
     
     for(; i < vshape_len; i++,j++){
-        printf("%lld, %lld\n", biggerShape->dims[i], smallerShape->dims[j]);
+        //printf("%lld, %lld\n", biggerShape->dims[i], smallerShape->dims[j]);
         if(biggerShape->dims[i] > smallerShape->dims[j]){
             array[i] = biggerShape->dims[i];
         }
@@ -177,7 +180,7 @@ static NDArray* _tb_prepareBroadcast(uint8_t res, NDArray* lhs, NDArray* rhs, ND
     }
     
     NDShape* vshape = nda_newShapeFromArray(vshape_len, array);
-    nda_debugShape(vshape);
+    //nda_debugShape(vshape);
     
     // creating output arrray
     return nda_alloc(vshape);
@@ -339,6 +342,8 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
+    ASSERT((lhsShape->rank <= 2) && (rhsShape->rank <= 2), "Cannot perform DOT product on shapes of ranks (%"PRIu64", %"PRIu64")", lhsShape->rank, rhsShape->rank);
+    
     return NULL;
 }
 
@@ -499,8 +504,22 @@ TB_UNARY_OP_MAP(_tb_relu, _relu);
 TB_UNARY_OP_MAP(_tb_softplus, _softplus);
 TB_UNARY_OP_MAP(_tb_sigmoid, _sigmoid);
 
-TBResultNode* _tb_transpose(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs){
-    return NULL;
+TBResultNode* _tb_transpose(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBTransposeOperation* top){
+    NDArray* arr = uhs->value;
+    NDArray* arr_res = nda_copy(arr);
+    NDShape* shape = arr_res->shape;
+    
+    // TODO: check if axes swapped matches shape rank
+    
+    uint64_t idim = shape->dims[top->axis1];
+    shape->dims[top->axis1] = shape->dims[top->axis2];
+    shape->dims[top->axis2] = idim;
+    
+    idim = shape->strides[top->axis1];
+    shape->strides[top->axis1] = shape->strides[top->axis2];
+    shape->strides[top->axis2] = idim;
+    
+    return tb_newResultNode(arr_res);
 }
 
 TBResultNode* _tb_elu(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs){

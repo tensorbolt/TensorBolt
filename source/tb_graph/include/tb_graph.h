@@ -111,9 +111,10 @@ typedef enum TBNodeType{
 	TBNT_BINARY_OPERATION,         /**< Binary operation. */
 	TBNT_UNARY_OPERATION,          /**< Unary operation. */
 	TBNT_AXIS_BOUND_OPERATION,     /**< Axis-bounded operations i.e operations that are applied over a specific axis or dimension. */
+    TBNT_AXES_TRANSPOSE,           /**< Transpose two axes of an NDArray */
 }TBNodeType;
 
-#define MAX_NODE_TYPE TBNT_AXIS_BOUND_OPERATION
+#define MAX_NODE_TYPE TBNT_AXES_TRANSPOSE
 
 /**
  * \brief Node data structure

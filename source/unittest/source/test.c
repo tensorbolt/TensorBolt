@@ -8,6 +8,10 @@
 #include "ndarray.h"
 #include "ndarray_std.h"
 
+#include <tb_session.h>
+#include <tb_graph.h>
+#include <tb_factory.h>
+#include <tb_ops.h>
 
 #define ASSERT_SHAPE_EQ(shape, values)\
 {\
@@ -95,6 +99,39 @@ MU_TEST(test_linspace){
     }
 }
 
+
+MU_TEST(test_transpose_mult){
+    NDArray* x = nda_linspace(0, 1, 16);
+    nda_reshape(x, nda_newShape(2, 4, 4));
+    
+    NDArray* y = nda_linspace(0, 1, 4);
+    
+    tb_float gt[4][4] = {{0.        , 0.08888889, 0.35555556, 0.8       },
+        {0.        , 0.11111111, 0.4       , 0.86666667},
+        {0.        , 0.13333333, 0.44444444, 0.93333333},
+        {0.        , 0.15555556, 0.48888889, 1.}};
+    
+    
+    TBNode* n1 = tb_newTransposeOpNode(tb_newConstantNode(x), 0, 1);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_MULT, n1, tb_newConstantNode(y));
+    
+    TBGraph* g = tb_newGraph("test", n2);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    uint64_t i =0, j =0;
+    x = res->value;
+    for(i=0; i<4;i++){
+        for(j = 0; j < 4; j++){
+            uint64_t index[] = {0, 0};
+            index[0] = i;
+            index[1] = j;
+            
+            mu_assert_double_eq(gt[i][j], nda_get(x, index));
+        }
+    }
+}
+
 MU_TEST_SUITE(nda_array_test) {
     MU_RUN_TEST(test_shape1);
     MU_RUN_TEST(test_shape2);
@@ -104,8 +141,13 @@ MU_TEST_SUITE(nda_array_test) {
     MU_RUN_TEST(test_linspace);
 }
 
+MU_TEST_SUITE(tb_test) {
+    MU_RUN_TEST(test_transpose_mult);
+}
+
 void runAllTests(){
     MU_RUN_SUITE(nda_array_test);
+    MU_RUN_SUITE(tb_test);
     MU_REPORT();
 }
 
@@ -114,6 +156,5 @@ int main(){
     printf("<TensorBolt & NDArray Test Units>\n\n");
     
     runAllTests();
-
     return 0;
 }

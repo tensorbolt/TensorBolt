@@ -69,7 +69,6 @@ typedef enum TBBinaryOperationType {
  */
 typedef enum TBUnaryOperationType {
 	TBUOT_MINUS=0,    /**< Element-wise minus */
-	TBUOT_TRANSPOSE,  /**< Transpose, applies only to matrices */
 	TBUOT_EXP,        /**< Element-wise Exponential */
 	TBUOT_LOG,        /**< Element-wise log */
 	TBUOT_SIN,        /**< Element-wise sin */
@@ -111,17 +110,30 @@ typedef struct TBBinaryOperation {
 	TBBinaryOperationType type;       /**< Type of the operation */
 }TBBinaryOperation;
 
+/**
+ * \brief Unary operation node
+ */
 typedef struct TBUnaryOperation {
 	struct TBNode* uhs;               /**< UHS */
 	TBUnaryOperationType type;        /**< Type of the operation */
 }TBUnaryOperation;
 
+/**
+ * \brief Axis-bound operation node
+ */
 typedef struct TBAxisBoundOperation{
 	struct TBNode* uhs;               /**< UHS */
-	uint64_t axis;                     /**< Axis on whichto perform the operation */
+	uint64_t axis;                    /**< Axis on whichto perform the operation */
 	
 	TBAxisBoundOperationType type;    /**< Type of the operation */
 }TBAxisBoundOperation;
+
+
+typedef struct TBTransposeOperation{
+    struct TBNode* uhs;               /**< UHS */
+    uint64_t axis1;                   /**< First axis to swap */
+    uint64_t axis2;                   /**< Second Axis to swap */
+}TBTransposeOperation;
 
 /**
  * \brief variable node

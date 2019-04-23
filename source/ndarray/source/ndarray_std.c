@@ -48,6 +48,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <assert.h>
+#include <inttypes.h>
 
 #include "ndarray.h"
 #include "ndarray_std.h"
@@ -138,16 +139,16 @@ NDShape* nda_newShapeFromArrayCopy(uint64_t rank, uint64_t* dims){
 }
 
 void nda_debugShape(NDShape* shape){
-    printf("Tensor{ .rank = %llu, \n\t", shape->rank);
+    printf("Tensor{ .rank = %"PRIu64", \n\t", shape->rank);
     
     size_t i = 0;
     
     for(; i < shape->rank; i++){
-        printf(".dims[%zu] = %llu, ", i, shape->dims[i]);
+        printf(".dims[%zu] = %"PRIu64", ", i, shape->dims[i]);
     }
     printf("\n\t");
     for(i=0; i < shape->rank; i++){
-        printf(".stride[%zu] = %llu, ", i, shape->strides[i]);
+        printf(".stride[%zu] = %"PRIu64", ", i, shape->strides[i]);
     }
 
     printf("}\n");
@@ -155,11 +156,11 @@ void nda_debugShape(NDShape* shape){
 
 char* nda_shapeToString(NDShape* shape){
     char buf[1024] = {0};
-    int offset = snprintf(buf, 1024, "(.rank = %llu, ", shape->rank);
+    int offset = snprintf(buf, 1024, "(.rank = %"PRIu64", ", shape->rank);
     
     size_t i = 0;
     for(; i < shape->rank; i++){
-        offset += snprintf(buf+offset, 1024, ".dims[%zu] = %llu, ", i, shape->dims[i]);
+        offset += snprintf(buf+offset, 1024, ".dims[%zu] = %"PRIu64", ", i, shape->dims[i]);
     }
     
     snprintf(buf+offset, 1024, ")\0");

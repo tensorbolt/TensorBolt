@@ -60,6 +60,7 @@
 static TBResultNode* _run_BinaryOperation(TBGraphSession* session, TBGraph* graph, TBNode* node);
 static TBResultNode* _run_UnaryOperation(TBGraphSession* session, TBGraph* graph, TBNode* node);
 static TBResultNode* _run_AxisBoundOperation(TBGraphSession* session, TBGraph* graph, TBNode* node);
+static TBResultNode* _run_TransposeOperation(TBGraphSession* session, TBGraph* graph, TBNode* node);
 static TBResultNode* _run_Node(TBGraphSession* session, TBGraph* graph, TBNode* node);
 
 TBGraphSession* tb_createLocalCPUSession(){
@@ -138,6 +139,8 @@ static TBResultNode* _run_Node(TBGraphSession* session, TBGraph* graph, TBNode* 
             return _run_UnaryOperation(session, graph, node);
         case TBNT_AXIS_BOUND_OPERATION:
             return _run_AxisBoundOperation(session, graph, node);
+        case TBNT_AXES_TRANSPOSE:
+            return _run_TransposeOperation(session, graph, node);
     }
     
     return res;
@@ -150,36 +153,24 @@ static TBResultNode* _run_UnaryOperation(TBGraphSession* session, TBGraph* graph
     switch(op->type){
         case TBUOT_MINUS:
             return _tb_negative(session, graph, node, uhs);
-        case TBUOT_TRANSPOSE:
-            return NULL;
-            break;
         case TBUOT_EXP:
             return _tb_exp(session, graph, node, uhs);
-            break;
         case TBUOT_LOG:
             return _tb_log(session, graph, node, uhs);
-            break;
         case TBUOT_SIN:
             return _tb_sin(session, graph, node, uhs);
-            break;
         case TBUOT_COS:
             return _tb_cos(session, graph, node, uhs);
-            break;
         case TBUOT_TAN:
             return _tb_tan(session, graph, node, uhs);
-            break;
         case TBUOT_TANH:
             return _tb_tanh(session, graph, node, uhs);
-            break;
         case TBUOT_RELU:
             return _tb_relu(session, graph, node, uhs);
-            break;
         case TBUOT_SOFTPLUS:
             return _tb_softplus(session, graph, node, uhs);
-            break;
         case TBUOT_SIGMOID:
             return _tb_sigmoid(session, graph, node, uhs);
-            break;
     }
 }
 
@@ -212,5 +203,14 @@ static TBResultNode* _run_BinaryOperation(TBGraphSession* session, TBGraph* grap
 }
 
 static TBResultNode* _run_AxisBoundOperation(TBGraphSession* session, TBGraph* graph, TBNode* node){
+    TBAxisBoundOperation* abop = (TBAxisBoundOperation*)node->nodePtr;
+    TBResultNode* uhs = _run_Node(session, graph, abop->uhs);
     return NULL;
+}
+
+static TBResultNode* _run_TransposeOperation(TBGraphSession* session, TBGraph* graph, TBNode* node){
+    TBTransposeOperation* top = (TBTransposeOperation*)node->nodePtr;
+    TBResultNode* uhs = _run_Node(session, graph, top->uhs);
+    
+    return _tb_transpose(session, graph, node, uhs, top);
 }

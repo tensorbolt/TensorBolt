@@ -113,7 +113,7 @@ TBNode* tb_newUnaryOpNode(TBUnaryOperationType type, TBNode* uhs){
 	return node;
 }
 
-TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t axis){
+TBNode* tb_newAxisBoundOpNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t axis){
 	TBAxisBoundOperation* abop = calloc(1, sizeof(TBAxisBoundOperation));
 	abop->axis = axis;
 	abop->type = type;
@@ -122,6 +122,18 @@ TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t
 	TB_ALLOC_NODE(node, TBNT_AXIS_BOUND_OPERATION, 1, abop);
 	
 	return node;
+}
+
+
+TBNode* tb_newTransposeOpNode(TBNode* uhs, uint64_t axis1, uint64_t axis2){
+    TBTransposeOperation* top = calloc(1, sizeof(TBTransposeOperation));
+    top->axis1 = axis1;
+    top->axis2 = axis2;
+    top->uhs = uhs;
+    
+    TB_ALLOC_NODE(node, TBNT_AXES_TRANSPOSE, 1, top);
+    
+    return node;
 }
 
 TBResultNode* tb_newResultNode(NDArray* array){

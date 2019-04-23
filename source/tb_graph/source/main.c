@@ -123,24 +123,3 @@ int main__(){
      
     return 0;
 }
-
-int main_(){
-    NDArray* x = nda_linspace(0, 1, 6);
-    nda_reshape(x, nda_newShape(2, 2, 3));
-    nda_debugValue(x);
-    
-    size_t i = 0;
-    size_t j = 0;
-    
-    for (; i < 2; i++){
-        for(j = 0; j < 3; j++){
-            uint64_t index[] = {0, 0};
-            index[0] = i;
-            index[1] = j;
-            
-            printf("%zu, %zu = %f\n", i, j, nda_get(x, index));
-        }
-    }
-    
-    return 0;
-}

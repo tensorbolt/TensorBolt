@@ -29,17 +29,23 @@ set (PROJECT_HEADERS
 	${PROJECT_SOURCE_DIR}/include/tb_ops.h
 )
 
-include_directories(${PROJECT_INCLUDE_DIR})
-
 add_library(tb_graph
 	${EXTERNAL_DEPS}
 	${PROJECT_SRCS}
 	${PROJECT_HEADERS}
 )
 
+find_package(OpenBLAS)
+
+
+include_directories(
+	${PROJECT_INCLUDE_DIR} 
+	${OpenBLAS_INCLUDE_DIR}
+)
 
 target_link_libraries(tb_graph 
 	ndarray
+	${OpenBLAS_LIB}
 )
 
 install(TARGETS tb_graph

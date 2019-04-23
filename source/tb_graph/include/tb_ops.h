@@ -192,7 +192,6 @@ TBResultNode* _tb_argmin(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBR
  * * * * * * * * * * */
 
 TBResultNode* _tb_negative(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
-TBResultNode* _tb_transpose(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 TBResultNode* _tb_sin(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 TBResultNode* _tb_cos(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 TBResultNode* _tb_exp(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
@@ -203,5 +202,11 @@ TBResultNode* _tb_relu(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBRes
 TBResultNode* _tb_softplus(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 TBResultNode* _tb_sigmoid(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 TBResultNode* _tb_elu(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
+
+
+/* * * * * * *
+ * Transpose *
+ * * * * * * */
+TBResultNode* _tb_transpose(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBTransposeOperation* top);
 
 #endif

@@ -5,6 +5,7 @@ set (PROJECT_INCLUDE_DIR
 	${PROJECT_SOURCE_DIR}
 	${PROJECT_SOURCE_DIR}/../ndarray/include/
 	${PROJECT_SOURCE_DIR}/../tb_graph/include/
+	${PROJECT_SOURCE_DIR}/../tb_graph/vendor/container
 	${PROJECT_SOURCE_DIR}/vendor/minunit/
 )
 
@@ -19,7 +20,7 @@ add_executable(unittest
 	${PROJECT_SRCS}
 )
 
-target_link_libraries(unittest 
+target_link_libraries(unittest
 	ndarray
 	tb_graph
 )

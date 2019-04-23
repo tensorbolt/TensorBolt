@@ -96,7 +96,16 @@ TBNode* tb_newUnaryOpNode(TBUnaryOperationType type, TBNode* uhs);
  * \param[in] axis Axis or dimension on which to operate
  * \return new Axis bound node
  */
-TBNode* tb_newAxisBoundNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t axis);
+TBNode* tb_newAxisBoundOpNode(TBAxisBoundOperationType type, TBNode* uhs, uint64_t axis);
+
+/**
+ * \brief Creates an operation node which transposes an NDArray
+ * \param[in] uhs Unary hand side node
+ * \param[in] axis1, must be lower than the rank of the array
+ * \param[in] axis2, must be lower than the rank of the array
+ * \return new Transpose node
+ */
+TBNode* tb_newTransposeOpNode(TBNode* uhs, uint64_t axis1, uint64_t axis2);
 
 /**
  * \brief Creates a new result node (do not create in case of error)
