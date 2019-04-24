@@ -342,9 +342,31 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
+    
     ASSERT((lhsShape->rank <= 2) && (rhsShape->rank <= 2), "Cannot perform DOT product on shapes of ranks (%"PRIu64", %"PRIu64")", lhsShape->rank, rhsShape->rank);
     
-    return NULL;
+    ASSERT((lhsShape->dims[1] == rhsShape->dims[0]), "Cannot perform DOT product on shapes (%"PRIu64", %"PRIu64") .  (%"PRIu64", %"PRIu64")", lhsShape->dims[0], lhsShape->dims[1], rhsShape->dims[0], rhsShape->dims[1]);
+    
+    uint64_t lhsRows = lhsShape->dims[0];
+    uint64_t lhsCols = 1;
+    
+    if(lhsShape->rank > 1){
+        lhsCols = lhsShape->dims[1];
+    }
+    
+    uint64_t rhsRows = rhsShape->dims[0];
+    uint64_t rhsCols = 1;
+    
+    if(rhsShape->rank > 1){
+        rhsCols = rhsShape->dims[1];
+    }
+    
+    NDArray* res_arr = nda_alloc(nda_newShape(2, lhsRows, rhsCols));
+    
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, lhsRows, rhsCols, lhsCols, 1.0, lhs->value->data, lhsCols,
+                rhs->value->data, rhsShape->strides[0], 0.0, res_arr->data, res_arr->shape->strides[0]);
+    
+    return tb_newResultNode(res_arr);
 }
 
 TBResultNode* _tb_mul(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* lhs, TBResultNode* rhs){
@@ -508,8 +530,12 @@ TBResultNode* _tb_transpose(TBGraphSession* sess, TBGraph* graph, TBNode* node, 
     NDArray* arr = uhs->value;
     NDArray* arr_res = nda_copy(arr);
     NDShape* shape = arr_res->shape;
+    if(shape->rank == 1){
+        //nda_reshape(arr_res, nda_newShape(2, 1, shape->dims[0]));
+        return tb_newResultNode(arr_res);
+    }
     
-    // TODO: check if axes swapped matches shape rank
+    shape = arr_res->shape;
     
     uint64_t idim = shape->dims[top->axis1];
     shape->dims[top->axis1] = shape->dims[top->axis2];

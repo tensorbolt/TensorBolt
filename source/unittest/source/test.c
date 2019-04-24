@@ -132,6 +132,117 @@ MU_TEST(test_transpose_mult){
     }
 }
 
+MU_TEST(test_transpose_1d){
+    
+    NDArray* x = nda_linspace(0, 1, 8);
+    
+    TBNode* n1 = tb_newTransposeOpNode(tb_newConstantNode(x), 0, 1);
+    TBGraph* g = tb_newGraph("test", n1);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    uint64_t dims[] = {8, 1};
+    uint64_t strides[] = {1, 8};
+    
+    ASSERT_SHAPE_EQ(res->value->shape, dims);
+    ASSERT_SHAPE_STRIDE_EQ(res->value->shape, strides);
+    tb_float gt[] = {0.        , 0.14285714, 0.28571429, 0.42857143, 0.57142857,
+        0.71428571, 0.85714286, 1.};
+    
+    uint64_t i =0;
+    x = res->value;
+    for(i = 0; i < 8; i++){
+        uint64_t index[] = {0, 0};
+        index[0] = i;
+        index[1] = 0;
+        
+        mu_assert_double_eq(gt[i], nda_get(x, index));
+    }
+}
+
+MU_TEST(test_transpose_dot1){
+    
+    NDArray* x = nda_linspace(0, 1, 8);
+    nda_reshape(x, nda_newShape(2, 8, 1));
+    
+    
+    NDArray* y = nda_linspace(0, 1, 8);
+    nda_reshape(y, nda_newShape(2, 1, 8));
+    
+    TBNode* n0 = tb_newTransposeOpNode(tb_newConstantNode(x), 0, 1);
+    TBNode* n1 = tb_newTransposeOpNode(tb_newConstantNode(y), 0, 1);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_DOT, n0, n1);
+    TBGraph* g = tb_newGraph("test", n2);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    uint64_t dims[] = {1, 1};
+    uint64_t strides[] = {1, 1};
+    
+    ASSERT_SHAPE_EQ(res->value->shape, dims);
+    ASSERT_SHAPE_STRIDE_EQ(res->value->shape, strides);
+    
+    uint64_t index[]={0,0};
+    
+    mu_assert_double_eq(2.857143, nda_get(res->value, index));
+}
+
+
+MU_TEST(test_transpose_dot2){
+    
+    NDArray* x = nda_linspace(0, 1, 8);
+    nda_reshape(x, nda_newShape(2, 8, 1));
+    
+    
+    NDArray* y = nda_linspace(0, 1, 8);
+    nda_reshape(y, nda_newShape(2, 1, 8));
+    
+    TBNode* n0 = tb_newConstantNode(x);
+    TBNode* n1 = tb_newConstantNode(y);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_DOT, n0, n1);
+    TBGraph* g = tb_newGraph("test", n2);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    uint64_t dims[] = {8, 8};
+    uint64_t strides[] = {8, 1};
+    
+    ASSERT_SHAPE_EQ(res->value->shape, dims);
+    ASSERT_SHAPE_STRIDE_EQ(res->value->shape, strides);
+    
+    uint64_t index[]={0,0};
+    
+    tb_float gt[8][8] = {
+        {0.        , 0.        , 0.        , 0.        , 0.        ,
+         0.        , 0.        , 0.        },
+        {0.        , 0.02040816, 0.04081633, 0.06122449, 0.08163265,
+         0.10204082, 0.12244898, 0.14285714},
+        {0.        , 0.04081633, 0.08163265, 0.12244898, 0.16326531,
+         0.20408163, 0.24489796, 0.28571429},
+        {0.        , 0.06122449, 0.12244898, 0.18367347, 0.24489796,
+         0.30612245, 0.36734694, 0.42857143},
+        {0.        , 0.08163265, 0.16326531, 0.24489796, 0.32653061,
+         0.40816327, 0.48979592, 0.57142857},
+        {0.        , 0.10204082, 0.20408163, 0.30612245, 0.40816327,
+         0.51020408, 0.6122449 , 0.71428571},
+        {0.        , 0.12244898, 0.24489796, 0.36734694, 0.48979592,
+         0.6122449 , 0.73469388, 0.85714286},
+        {0.        , 0.14285714, 0.28571429, 0.42857143, 0.57142857,
+         0.71428571, 0.85714286, 1.}
+    };
+    
+    uint64_t i = 0, j = 0;
+    
+    for(; i < 8; i++){
+        for(j=0; j<8; j++){
+            index[0] = i;
+            index[1] = j;
+            
+            mu_assert_double_eq(gt[i][j], nda_get(res->value, index));
+        }
+    }
+}
+
 MU_TEST_SUITE(nda_array_test) {
     MU_RUN_TEST(test_shape1);
     MU_RUN_TEST(test_shape2);
@@ -143,6 +254,9 @@ MU_TEST_SUITE(nda_array_test) {
 
 MU_TEST_SUITE(tb_test) {
     MU_RUN_TEST(test_transpose_mult);
+    MU_RUN_TEST(test_transpose_1d);
+    MU_RUN_TEST(test_transpose_dot1);
+    MU_RUN_TEST(test_transpose_dot2);
 }
 
 void runAllTests(){
