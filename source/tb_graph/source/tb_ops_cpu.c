@@ -345,26 +345,42 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     
     ASSERT((lhsShape->rank <= 2) && (rhsShape->rank <= 2), "Cannot perform DOT product on shapes of ranks (%"PRIu64", %"PRIu64")", lhsShape->rank, rhsShape->rank);
     
-    ASSERT((lhsShape->dims[1] == rhsShape->dims[0]), "Cannot perform DOT product on shapes (%"PRIu64", %"PRIu64") .  (%"PRIu64", %"PRIu64")", lhsShape->dims[0], lhsShape->dims[1], rhsShape->dims[0], rhsShape->dims[1]);
-    
-    uint64_t lhsRows = lhsShape->dims[0];
-    uint64_t lhsCols = 1;
+    uint64_t lhsRows = 1;
+    uint64_t lhsCols = lhsShape->dims[0];
     
     if(lhsShape->rank > 1){
+        lhsRows = lhsShape->dims[0];
         lhsCols = lhsShape->dims[1];
     }
     
-    uint64_t rhsRows = rhsShape->dims[0];
-    uint64_t rhsCols = 1;
+    
+    uint64_t rhsRows = 1;
+    uint64_t rhsCols = rhsShape->dims[0];
     
     if(rhsShape->rank > 1){
+        rhsRows = rhsShape->dims[0];
         rhsCols = rhsShape->dims[1];
     }
     
-    NDArray* res_arr = nda_alloc(nda_newShape(2, lhsRows, rhsCols));
+    
+    ASSERT((lhsCols == rhsRows), "Cannot perform DOT product on shapes (%"PRIu64", %"PRIu64") .  (%"PRIu64", %"PRIu64")", lhsRows, lhsCols, rhsRows, rhsCols);
+    
+    NDArray* res_arr = NULL;
+    
+    // when calculating the dot product over a vector as LHS, the output is a vector by default, unless LHS has been
+    // reshaped into a matrix of 1,m
+    
+    if(lhsShape->rank == 1){
+        res_arr = nda_alloc(nda_newShape(1, rhsCols));
+    }
+    else{
+        res_arr = nda_alloc(nda_newShape(2, lhsRows, rhsCols));
+    }
+    
+    
     
     cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, lhsRows, rhsCols, lhsCols, 1.0, lhs->value->data, lhsCols,
-                rhs->value->data, rhsShape->strides[0], 0.0, res_arr->data, res_arr->shape->strides[0]);
+                rhs->value->data, rhsShape->strides[0], 0.0, res_arr->data, rhsCols);
     
     return tb_newResultNode(res_arr);
 }

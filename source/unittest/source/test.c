@@ -118,6 +118,7 @@ MU_TEST(test_transpose_mult){
     TBGraph* g = tb_newGraph("test", n2);
     
     TBResultNode* res = tb_runSession(NULL, g, NULL);
+    mu_assert_int_eq(2, res->value->shape->rank);
     
     uint64_t i =0, j =0;
     x = res->value;
@@ -144,6 +145,7 @@ MU_TEST(test_transpose_1d){
     uint64_t dims[] = {8, 1};
     uint64_t strides[] = {1, 8};
     
+    mu_assert_int_eq(1, res->value->shape->rank);
     ASSERT_SHAPE_EQ(res->value->shape, dims);
     ASSERT_SHAPE_STRIDE_EQ(res->value->shape, strides);
     tb_float gt[] = {0.        , 0.14285714, 0.28571429, 0.42857143, 0.57142857,
@@ -179,6 +181,7 @@ MU_TEST(test_transpose_dot1){
     uint64_t dims[] = {1, 1};
     uint64_t strides[] = {1, 1};
     
+    mu_assert_int_eq(2, res->value->shape->rank);
     ASSERT_SHAPE_EQ(res->value->shape, dims);
     ASSERT_SHAPE_STRIDE_EQ(res->value->shape, strides);
     
@@ -207,6 +210,7 @@ MU_TEST(test_transpose_dot2){
     uint64_t dims[] = {8, 8};
     uint64_t strides[] = {8, 1};
     
+    mu_assert_int_eq(2, res->value->shape->rank);
     ASSERT_SHAPE_EQ(res->value->shape, dims);
     ASSERT_SHAPE_STRIDE_EQ(res->value->shape, strides);
     
@@ -243,6 +247,40 @@ MU_TEST(test_transpose_dot2){
     }
 }
 
+MU_TEST(test_vec_mat_dot){
+    
+    NDArray* x = nda_linspace(0, 1, 8);
+    
+    
+    NDArray* y = nda_linspace(0, 1, 8*4);
+    nda_reshape(y, nda_newShape(2, 8, 4));
+    
+    TBNode* n0 = tb_newConstantNode(x);
+    TBNode* n1 = tb_newConstantNode(y);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_DOT, n0, n1);
+    TBGraph* g = tb_newGraph("test", n2);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    uint64_t dims[] = {4};
+    uint64_t strides[] = {1};
+    tb_float gt[] = {2.58064516, 2.70967742, 2.83870968, 2.96774194};
+    
+    
+    mu_assert_int_eq(1, res->value->shape->rank);
+    ASSERT_SHAPE_EQ(res->value->shape, dims);
+    ASSERT_SHAPE_STRIDE_EQ(res->value->shape, strides);
+    
+    uint64_t i = 0;
+    uint64_t index[] = {0};
+    
+    for(; i < 4; i++){
+        index[0] = i;
+        mu_assert_double_eq(gt[i], nda_get(res->value, index));
+    }
+    
+}
+
 MU_TEST_SUITE(nda_array_test) {
     MU_RUN_TEST(test_shape1);
     MU_RUN_TEST(test_shape2);
@@ -257,6 +295,7 @@ MU_TEST_SUITE(tb_test) {
     MU_RUN_TEST(test_transpose_1d);
     MU_RUN_TEST(test_transpose_dot1);
     MU_RUN_TEST(test_transpose_dot2);
+    MU_RUN_TEST(test_vec_mat_dot);
 }
 
 void runAllTests(){
@@ -270,5 +309,6 @@ int main(){
     printf("<TensorBolt & NDArray Test Units>\n\n");
     
     runAllTests();
+    //test();
     return 0;
 }
