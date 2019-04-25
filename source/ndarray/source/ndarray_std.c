@@ -277,9 +277,11 @@ void nda_debugValue(NDArray* tensor){
     size_t i = 0;
     size_t j = 0;
     for(; i < len; i++){
+        uint64_t mod = 0;
         
-        for(j = 0; j < shape->rank; j++){
-            idx[j] = i%shape->dims[j];
+        for(j = 0; j < shape->rank ;j++){
+            idx[j] = (i - mod)/shape->strides[j] % shape->dims[j];
+            mod = mod - idx[j]*shape->strides[j];
         }
         
         printf("\t%f,\n", nda_get(tensor, idx));

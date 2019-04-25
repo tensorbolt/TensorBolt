@@ -205,6 +205,39 @@ static TBResultNode* _run_BinaryOperation(TBGraphSession* session, TBGraph* grap
 static TBResultNode* _run_AxisBoundOperation(TBGraphSession* session, TBGraph* graph, TBNode* node){
     TBAxisBoundOperation* abop = (TBAxisBoundOperation*)node->nodePtr;
     TBResultNode* uhs = _run_Node(session, graph, abop->uhs);
+    
+    switch(abop->type){
+        case TBABOT_SUM:
+            return _tb_sum(session, graph, node, uhs);
+            break;
+        case TBABOT_PRODUCT:
+            // TODO: implement
+            return NULL;
+            break;
+        case TBABOT_MIN:
+            return _tb_min(session, graph, node, uhs);
+            break;
+        case TBABOT_MAX:
+            return _tb_max(session, graph, node, uhs);
+            break;
+        case TBABOT_MEAN:
+            return _tb_mean(session, graph, node, uhs);
+            break;
+        case TBABOT_VARIANCE:
+            // TODO: Implement
+            return NULL;
+            break;
+        case TBABOT_SOFTMAX:
+            // TODO: Implement
+            return NULL;
+            break;
+        case TBABOT_ARGMIN:
+            return _tb_argmin(session, graph, node, uhs);
+            break;
+        case TBABOT_ARGMAX:
+            return _tb_argmax(session, graph, node, uhs);
+            break;
+    }
     return NULL;
 }
 

@@ -100,6 +100,83 @@ MU_TEST(test_linspace){
 }
 
 
+MU_TEST(test_slice_01){
+    NDArray* y = nda_linspace(0, 1, 8*4);
+    nda_reshape(y, nda_newShape(3, 2, 8, 2));
+    
+    uint64_t index[] = {0,0, 3,6, 0,2};
+    
+    NDArray* x = nda_slice(y, index);
+    
+    uint64_t dims[] = {3, 2};
+    tb_float gt[3][2] = {
+        {0.19354839, 0.22580645},
+        {0.25806452, 0.29032258},
+        {0.32258065, 0.35483871},
+    };
+    
+    
+    mu_assert_int_eq(2, x->shape->rank);
+    ASSERT_SHAPE_EQ(x->shape, dims);
+    
+    uint64_t idx[] = {0, 0};
+    
+    uint64_t i = 0;
+    uint64_t j = 0;
+    
+    for(; i < x->shape->dims[0]; i++){
+        for(j = 0; j < x->shape->dims[1]; j++){
+            idx[0] = i;
+            idx[1] = j;
+            
+            mu_assert_double_eq(gt[i][j], nda_get(x, idx));
+            
+        }
+    }
+}
+
+
+MU_TEST(test_slice_02){
+    NDArray* y = nda_linspace(0, 1, 8*4);
+    nda_reshape(y, nda_newShape(3, 2, 8, 2));
+    
+    uint64_t index[] = {0,1, 3,6, 0,2};
+    
+    NDArray* x = nda_slice(y, index);
+    
+    uint64_t dims[] = {1, 3, 2};
+    tb_float gt[1][3][2] = {{
+        {0.19354839, 0.22580645},
+        {0.25806452, 0.29032258},
+        {0.32258065, 0.35483871},
+    }};
+    
+    
+    mu_assert_int_eq(3, x->shape->rank);
+    ASSERT_SHAPE_EQ(x->shape, dims);
+    
+    uint64_t idx[] = {0, 0, 0};
+    
+    uint64_t i = 0;
+    uint64_t j = 0;
+    uint64_t k = 0;
+    
+    for(; i < x->shape->dims[0]; i++){
+        for(j = 0; j < x->shape->dims[1]; j++){
+            for(k = 0; k < x->shape->dims[2]; k++){
+                idx[0] = i;
+                idx[1] = j;
+                idx[2] = k;
+                
+                mu_assert_double_eq(gt[i][j][k], nda_get(x, idx));
+            }
+        }
+    }
+}
+
+
+
+
 MU_TEST(test_transpose_mult){
     NDArray* x = nda_linspace(0, 1, 16);
     nda_reshape(x, nda_newShape(2, 4, 4));
@@ -281,6 +358,9 @@ MU_TEST(test_vec_mat_dot){
     
 }
 
+
+
+
 MU_TEST_SUITE(nda_array_test) {
     MU_RUN_TEST(test_shape1);
     MU_RUN_TEST(test_shape2);
@@ -288,6 +368,8 @@ MU_TEST_SUITE(nda_array_test) {
     MU_RUN_TEST(test_shape4);
     MU_RUN_TEST(test_reshape1);
     MU_RUN_TEST(test_linspace);
+    MU_RUN_TEST(test_slice_01);
+    MU_RUN_TEST(test_slice_02);
 }
 
 MU_TEST_SUITE(tb_test) {
@@ -304,43 +386,10 @@ void runAllTests(){
     MU_REPORT();
 }
 
-void test(){
-    
-    NDArray* y = nda_linspace(0, 1, 8*4);
-    nda_reshape(y, nda_newShape(3, 2, 8, 2));
-    
-    nda_debugValue(y);
-    
-    uint64_t index[] = {0,0, 3,6, 0,2};
-    
-    NDArray* x = nda_slice(y, index);
-    
-    nda_debugValue(x);
-    
-    uint64_t idx[] = {0, 0, 0};
-    
-    uint64_t i = 0;
-    uint64_t j = 0;
-    uint64_t k = 0;
-    
-    for(; i < x->shape->dims[0]; i++){
-        for(j = 0; j < x->shape->dims[1]; j++){
-            //for(k = 0; k < x->shape->dims[2]; k++){
-                idx[0] = i;
-                idx[1] = j;
-                idx[2] = k;
-                
-                printf("\t%lld, %lld, %lld = %f\n", i, j, k, nda_get(x, idx));
-            //}
-        }
-    }
-}
-
-
 int main(){
     printf("<TensorBolt & NDArray Test Units>\n\n");
     
-    //runAllTests();
-    test();
+    runAllTests();
+    //test();
     return 0;
 }
