@@ -304,11 +304,43 @@ void runAllTests(){
     MU_REPORT();
 }
 
+void test(){
+    
+    NDArray* y = nda_linspace(0, 1, 8*4);
+    nda_reshape(y, nda_newShape(3, 2, 8, 2));
+    
+    nda_debugValue(y);
+    
+    uint64_t index[] = {0,0, 3,6, 0,2};
+    
+    NDArray* x = nda_slice(y, index);
+    
+    nda_debugValue(x);
+    
+    uint64_t idx[] = {0, 0, 0};
+    
+    uint64_t i = 0;
+    uint64_t j = 0;
+    uint64_t k = 0;
+    
+    for(; i < x->shape->dims[0]; i++){
+        for(j = 0; j < x->shape->dims[1]; j++){
+            //for(k = 0; k < x->shape->dims[2]; k++){
+                idx[0] = i;
+                idx[1] = j;
+                idx[2] = k;
+                
+                printf("\t%lld, %lld, %lld = %f\n", i, j, k, nda_get(x, idx));
+            //}
+        }
+    }
+}
+
 
 int main(){
     printf("<TensorBolt & NDArray Test Units>\n\n");
     
-    runAllTests();
-    //test();
+    //runAllTests();
+    test();
     return 0;
 }

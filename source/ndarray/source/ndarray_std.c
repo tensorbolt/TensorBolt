@@ -188,6 +188,51 @@ tb_float nda_get(NDArray* array, uint64_t* index){
     return array->data[data_index];
 }
 
+
+NDArray* nda_slice(struct NDArray* array, uint64_t* index){
+    NDShape* shape = array->shape;
+    uint64_t rank = shape->rank;
+    
+    uint64_t i = 0;
+    uint64_t idx = 0;
+    
+    uint64_t new_rank = 0;
+    
+    for(; i < rank; i++, idx+=2){
+        ASSERT(index[idx+1] >= index[idx], "Cannot get slice of range %lld:%lld", index[idx], index[idx+1]);
+        if(index[idx+1] - index[idx] >= 1){
+            new_rank++;
+        }
+    }
+    
+    NDShape* new_shape = calloc(1, sizeof(NDShape));
+    new_shape->rank = new_rank;
+    new_shape->dims = calloc(new_rank, sizeof(uint64_t));
+    new_shape->strides = calloc(new_rank, sizeof(uint64_t));
+    uint64_t padding = 0;
+    i = 0;
+    idx = 0;
+    uint64_t counter = 0;
+    for(; i < rank; i++, idx+=2){
+        if(index[idx+1] - index[idx] > 0){
+            new_shape->dims[counter] = index[idx+1] - index[idx];
+            new_shape->strides[counter] = shape->strides[i];
+            counter++;
+        }
+        
+        padding += index[idx]*shape->strides[i];
+    }
+    
+    // TODO: this might be an issue
+    new_shape->raw_len = nda_getTotalSize(new_shape);
+    
+    NDArray* arr = calloc(1, sizeof(NDArray));
+    arr->shape = new_shape;
+    arr->data = (tb_float*)(array->data+padding);
+    
+    return arr;
+}
+
 tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape){
     
     NDShape* shape = array->shape;
@@ -225,12 +270,19 @@ tb_float nda_vget1D(NDArray* array, uint64_t index){
 
 void nda_debugValue(NDArray* tensor){
     nda_debugShape(tensor->shape);
+    NDShape* shape = tensor->shape;
     uint64_t len = tensor->shape->raw_len;
+    uint64_t* idx = calloc(shape->rank, sizeof(uint64_t));
     
     size_t i = 0;
-
+    size_t j = 0;
     for(; i < len; i++){
-        printf("\t[%zu] = %f,\n", i, tensor->data[i]);
+        
+        for(j = 0; j < shape->rank; j++){
+            idx[j] = i%shape->dims[j];
+        }
+        
+        printf("\t%f,\n", nda_get(tensor, idx));
     }
 
     printf("\n");

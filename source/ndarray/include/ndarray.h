@@ -246,7 +246,7 @@ tb_float nda_get(struct NDArray* array, uint64_t* index);
  * must be in the format start_dim_1, end_dim_1, start_dim_2, end_dim_2, ... start_dim_n, end_dim_n
  * \return array[index]
  */
-tb_float nda_slice(struct NDArray* array, uint64_t* index);
+struct NDArray* nda_slice(struct NDArray* array, uint64_t* index);
 
 
 /**
