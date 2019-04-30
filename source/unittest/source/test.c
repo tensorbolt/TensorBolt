@@ -451,7 +451,63 @@ MU_TEST(test_sum02){
     }
 }
 
-
+MU_TEST(test_max01){
+    
+    NDArray* x = nda_linspace(0, 11, 3*3*3*2);
+    nda_reshape(x, nda_newShape(4, 3, 3, 3, 2));
+    
+    TBNode* n0 = tb_newConstantNode(x);
+    
+    TBNode* n2 = tb_newAxisBoundOpNode(TBABOT_MAX, n0, 1);
+    TBGraph* g = tb_newGraph("test", n2);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    NDArray* arr = res->value;
+    
+    tb_float gt[3][3][2]={
+        {{2.490566,
+        2.698113},
+        {2.905660,
+        3.113208},
+        {3.320755,
+        3.528302}},
+        {{6.226415,
+        6.433962},
+        {6.641510,
+        6.849057},
+        {7.056604,
+        7.264151}},
+        {{9.962264,
+        10.169811},
+        {10.377358,
+        10.584906},
+        {10.792453,
+        11.000000}},
+    };
+    
+    uint64_t dims[] = {3, 3, 2};
+    uint64_t strides[] = {6, 2, 1};
+    
+    mu_assert_int_eq(3, arr->shape->rank);
+    ASSERT_SHAPE_EQ(arr->shape, dims);
+    ASSERT_SHAPE_STRIDE_EQ(arr->shape, strides);
+    
+    uint64_t i = 0, j = 0, k = 0;
+    
+    uint64_t index[] = {0, 0, 0};
+    
+    for(; i < 3; i++){
+        index[0] = i;
+        for(j=0; j<3; j++){
+            index[1] = j;
+            for(k=0; k<2; k++){
+                index[2] = k;
+                mu_assert_double_eq(gt[i][j][k], nda_get(arr, index));
+            }
+        }
+    }
+}
 
 
 MU_TEST_SUITE(nda_array_test) {
@@ -473,6 +529,7 @@ MU_TEST_SUITE(tb_test) {
     MU_RUN_TEST(test_vec_mat_dot);
     MU_RUN_TEST(test_sum01);
     MU_RUN_TEST(test_sum02);
+    MU_RUN_TEST(test_max01);
 }
 
 void runAllTests(){
@@ -480,6 +537,7 @@ void runAllTests(){
     MU_RUN_SUITE(tb_test);
     MU_REPORT();
 }
+
 
 int main(){
     printf("<TensorBolt & NDArray Unit Tests>\n\n");

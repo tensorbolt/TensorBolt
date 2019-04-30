@@ -495,8 +495,18 @@ TBResultNode* _tb_max(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     
     uint64_t axis = abop->axis;
     
-    // reduce the dims by one
-    uint64_t* new_dims = calloc(shape->rank-1, sizeof(uint64_t));
+    ASSERT(axis < shape->rank, "Cannot compute axis bound operation MAX on axis %lld >= array of rank %llu", axis, shape->rank);
+    
+    uint64_t* new_dims = NULL;
+    uint64_t new_rank = 1;
+    if(shape->rank == 1){
+        new_dims = calloc(1, sizeof(uint64_t));
+        new_dims[0] = 1;
+    }
+    else{
+        new_dims = calloc(shape->rank-1, sizeof(uint64_t));
+        new_rank =shape->rank-1;
+    }
     
     uint64_t i = 0;
     uint64_t j = 0;
@@ -506,10 +516,56 @@ TBResultNode* _tb_max(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
         }
     }
     
-    NDShape* newShape = nda_newShapeFromArray(shape->rank-1, new_dims);
+    NDShape* newShape = nda_newShapeFromArray(new_rank, new_dims);
     NDArray* new_arr = nda_alloc(newShape);
     
-    return NULL;
+    i = 0;
+    uint64_t k = 0;
+    for(; i < newShape->raw_len; i++){
+        
+        uint64_t m = shape->rank;
+        uint64_t mod = i;
+        j = 0; //i/shape->strides[axis] % shape->dims[axis];
+        for(;m > 0; m--){
+            if(m-1 == axis){
+                continue;
+            }
+            else{
+                j += (mod%shape->dims[m-1])*shape->strides[m-1];
+                mod = mod/shape->dims[m-1];
+            }
+        }
+        new_arr->data[i] = arr->data[j];
+    }
+    
+    k = 0;
+    i = 0;
+    
+    for(; i < newShape->raw_len; i++){
+        
+        uint64_t m = shape->rank;
+        uint64_t mod = i;
+        j = 0; //i/shape->strides[axis] % shape->dims[axis];
+        for(;m > 0; m--){
+            if(m-1 == axis){
+                continue;
+            }
+            else{
+                j += (mod%shape->dims[m-1])*shape->strides[m-1];
+                mod = mod/shape->dims[m-1];
+                //printf("%lld, %lld, m= %lld, %f\n", i, j, m, arr->data[j]);
+            }
+        }
+        
+        j+=shape->strides[axis];
+        for(k=1; k < shape->dims[axis]; j+=shape->strides[axis],k++){
+            //printf("%lld, %lld, %f\n", i, j,  arr->data[j]);
+            new_arr->data[i] = (new_arr->data[i]>arr->data[j])?new_arr->data[i]:arr->data[j];
+        }
+    }
+    
+    
+    return tb_newResultNode(new_arr);
 }
 
 TBResultNode* _tb_min(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop){
@@ -522,12 +578,7 @@ TBResultNode* _tb_sum(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     
     uint64_t axis = abop->axis;
     
-    ASSERT(axis < shape->rank, "Cannot compute axis bound operation on axis %lld >= array of rank %llu", axis, shape->rank);
-    
-    // reduce the dims by one
-    
-    NDShape* vshape = nda_copyShape(shape);
-    
+    ASSERT(axis < shape->rank, "Cannot compute axis bound operation SUM on axis %lld >= array of rank %llu", axis, shape->rank);
     
     uint64_t* new_dims = NULL;
     uint64_t new_rank = 1;
