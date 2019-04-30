@@ -134,7 +134,7 @@ TBResultNode* _tb_pow(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
  * \param[in] uhs Unary-hand side result node
  * \return Result of the operation
  */
-TBResultNode* _tb_max(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
+TBResultNode* _tb_max(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop);
 
 /**
  * \brief Minimum element in the given axis
@@ -144,7 +144,7 @@ TBResultNode* _tb_max(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
  * \param[in] uhs Unary-hand side result node
  * \return Result of the operation
  */
-TBResultNode* _tb_min(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
+TBResultNode* _tb_min(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop);
 
 /**
  * \brief Sum of the element in the given axis
@@ -152,9 +152,21 @@ TBResultNode* _tb_min(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
  * \param[in] graph Parent graph which is being executed
  * \param[in] node Current node that is being executed
  * \param[in] uhs Unary-hand side result node
+ * \param[in] abop Axis-bound operation node, contains operation meta-data
  * \return Result of the operation
  */
-TBResultNode* _tb_sum(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
+TBResultNode* _tb_sum(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop);
+
+/**
+ * \brief Product of the elements in the given axis
+ * \param[in] sess Session which contains the context of execution
+ * \param[in] graph Parent graph which is being executed
+ * \param[in] node Current node that is being executed
+ * \param[in] uhs Unary-hand side result node
+ * \param[in] abop Axis-bound operation node, contains operation meta-data
+ * \return Result of the operation
+ */
+TBResultNode* _tb_product(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop);
 
 /**
  * \brief Mean of the element in the given axis
@@ -162,9 +174,10 @@ TBResultNode* _tb_sum(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
  * \param[in] graph Parent graph which is being executed
  * \param[in] node Current node that is being executed
  * \param[in] uhs Unary-hand side result node
+ * \param[in] abop Axis-bound operation node, contains operation meta-data
  * \return Result of the operation
  */
-TBResultNode* _tb_mean(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
+TBResultNode* _tb_mean(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop);
 
 /**
  * \brief Argmax element in the given axis
@@ -172,9 +185,10 @@ TBResultNode* _tb_mean(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBRes
  * \param[in] graph Parent graph which is being executed
  * \param[in] node Current node that is being executed
  * \param[in] uhs Unary-hand side result node
+ * \param[in] abop Axis-bound operation node, contains operation meta-data
  * \return Result of the operation
  */
-TBResultNode* _tb_argmax(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
+TBResultNode* _tb_argmax(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop);
 
 /**
  * \brief Argmin element in the given axis
@@ -182,10 +196,21 @@ TBResultNode* _tb_argmax(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBR
  * \param[in] graph Parent graph which is being executed
  * \param[in] node Current node that is being executed
  * \param[in] uhs Unary-hand side result node
+ * \param[in] abop Axis-bound operation node, contains operation meta-data
  * \return Result of the operation
  */
-TBResultNode* _tb_argmin(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
+TBResultNode* _tb_argmin(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop);
 
+/**
+ * \brief Numerically stable softmax
+ * \param[in] sess Session which contains the context of execution
+ * \param[in] graph Parent graph which is being executed
+ * \param[in] node Current node that is being executed
+ * \param[in] uhs Unary-hand side result node
+ * \param[in] abop Axis-bound operation node, contains operation meta-data
+ * \return Result of the operation
+ */
+TBResultNode* _tb_softmax(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop);
 
 /* * * * * * * * * * *
  * UNARY  OPERATIONS *

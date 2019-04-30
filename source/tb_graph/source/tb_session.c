@@ -99,7 +99,6 @@ void tb_freeSession(TBGraphSession* session){
 /* * * * * * * * * * * * *
  * Graph Processing  API *
  * * * * * * * * * * * * */
- 
 
 static TBResultNode* _run_Node(TBGraphSession* session, TBGraph* graph, TBNode* node){
     TBNodeType type = node->type;
@@ -208,34 +207,32 @@ static TBResultNode* _run_AxisBoundOperation(TBGraphSession* session, TBGraph* g
     
     switch(abop->type){
         case TBABOT_SUM:
-            return _tb_sum(session, graph, node, uhs);
+            return _tb_sum(session, graph, node, uhs, abop);
             break;
         case TBABOT_PRODUCT:
-            // TODO: implement
-            return NULL;
+            return _tb_product(session, graph, node, uhs, abop);
             break;
         case TBABOT_MIN:
-            return _tb_min(session, graph, node, uhs);
+            return _tb_min(session, graph, node, uhs, abop);
             break;
         case TBABOT_MAX:
-            return _tb_max(session, graph, node, uhs);
+            return _tb_max(session, graph, node, uhs, abop);
             break;
         case TBABOT_MEAN:
-            return _tb_mean(session, graph, node, uhs);
+            return _tb_mean(session, graph, node, uhs, abop);
             break;
         case TBABOT_VARIANCE:
             // TODO: Implement
             return NULL;
             break;
         case TBABOT_SOFTMAX:
-            // TODO: Implement
-            return NULL;
+            return _tb_softmax(session, graph, node, uhs, abop);
             break;
         case TBABOT_ARGMIN:
-            return _tb_argmin(session, graph, node, uhs);
+            return _tb_argmin(session, graph, node, uhs, abop);
             break;
         case TBABOT_ARGMAX:
-            return _tb_argmax(session, graph, node, uhs);
+            return _tb_argmax(session, graph, node, uhs, abop);
             break;
     }
     return NULL;

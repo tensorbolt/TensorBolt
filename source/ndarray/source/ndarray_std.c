@@ -288,6 +288,7 @@ void nda_debugValue(NDArray* tensor){
     }
 
     printf("\n");
+    free(idx);
 }
 
 uint64_t nda_getTotalSize(NDShape* shape){
