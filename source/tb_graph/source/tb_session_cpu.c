@@ -36,7 +36,7 @@
  ****************************************************************************/
 
 /**
- * @file tb_session.c
+ * @file tb_session_cpu.c
  * @author Soulaymen Chouri
  * @date March 16 2019
  * @brief File containing Sessions metadata & implementations.

@@ -16,7 +16,7 @@ set (PROJECT_SRCS
 	${PROJECT_SOURCE_DIR}/source/main.c
 	${PROJECT_SOURCE_DIR}/source/tb_graph.c
 	${PROJECT_SOURCE_DIR}/source/tb_factory.c
-	${PROJECT_SOURCE_DIR}/source/tb_session.c
+	${PROJECT_SOURCE_DIR}/source/tb_session_cpu.c
 	${PROJECT_SOURCE_DIR}/source/tb_ops_cpu.c
 	${PROJECT_SOURCE_DIR}/source/tb_autograd.c
 )
