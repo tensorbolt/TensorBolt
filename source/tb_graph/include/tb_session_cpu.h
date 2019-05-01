@@ -1,3 +1,4 @@
+
 /****************************************************************************
  * Copyright (C) 2019 by Soulaymen Chouri                                   *
  *                                                                          *
@@ -38,51 +39,10 @@
 /**
  * @file tb_session.h
  * @author Soulaymen Chouri
- * @date March 21 2019
- * @brief File containing Session data structure for creating sessions and running graphs.
+ * @date May 1st 2019
+ * @brief File containing Session data structure for creating sessions and running graphs on CPU.
  */
 
-#ifndef _TB_SESSION_H_
-#define _TB_SESSION_H_
-
-#include <tb_graph.h>
-
-
-/**
- * \brief Structure of a graph session
- * A session encapsulates the execution environment of graphs.
- */
-struct TBGraphSession;
-
-/* * * * * * * *
- * Session API *
- * * * * * * * */ 
-
-/**
- * \brief Creates a session to be run on CPU with optional multi-threading
- * \return CPU session (No OpenCL)
- */
-struct TBGraphSession* tb_createLocalCPUSession();
-
-// TODO: Requires OpenCL
-// TBGraphSession* tb_createLocalAutoSelectSession(TBGraphNodeParam** params);
-// TBGraphSession* tb_createLocalGPUSession(uint8_t gpu_id, TBGraphNodeParam** params);
-// TBGraphSession* tb_createExternalSession(const char* url, TBGraphNodeParam** params);
-
-
-/**
- * \brief Computes session
- * \param[in] session Session to run
- * \param[in/out] graph Graph to run
- * \param[in] params Optional array of Node-Var name pairs, set to NULL if not needed
- * \return computation result which can be checked for error
- */
-struct TBResultNode* tb_runSession(struct TBGraphSession* session, struct TBGraph* graph, struct TBGraphNodeParam** params);
-
-/**
- * \brief Deallocates/frees a session after use, graph is freed as well. 
- * \param[in/out] session Session to free
- */
-void tb_freeSession(struct TBGraphSession* session);
-
-#endif
+typedef struct TBGraphSession{
+    uint8_t dummy;
+}TBGraphSession;

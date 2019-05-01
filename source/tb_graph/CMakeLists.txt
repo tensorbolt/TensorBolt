@@ -25,6 +25,7 @@ set (PROJECT_HEADERS
 	${PROJECT_SOURCE_DIR}/include/tb_graph.h
 	${PROJECT_SOURCE_DIR}/include/tb_factory.h
 	${PROJECT_SOURCE_DIR}/include/tb_session.h
+	${PROJECT_SOURCE_DIR}/include/tb_session_cpu.h
 	${PROJECT_SOURCE_DIR}/include/tb_operation.h
 	${PROJECT_SOURCE_DIR}/include/tb_errors.h
 	${PROJECT_SOURCE_DIR}/include/tb_ops.h

@@ -48,6 +48,7 @@
 #include <stdint.h>
 
 #include <tb_session.h>
+#include <tb_session_cpu.h>
 #include <tb_graph.h>
 #include <tb_operation.h>
 

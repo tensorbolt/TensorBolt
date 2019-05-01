@@ -65,7 +65,6 @@ static TBResultNode* _run_Node(TBGraphSession* session, TBGraph* graph, TBNode* 
 
 TBGraphSession* tb_createLocalCPUSession(){
     TBGraphSession* session = calloc(1, sizeof(TBGraphSession));
-    session->device = "/local/cpu:0";
 
     return session;
 }
