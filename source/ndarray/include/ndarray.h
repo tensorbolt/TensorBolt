@@ -73,7 +73,16 @@
 /*
  * change this to double if you need
  */
+#define TB_FLOAT 0
+#define TB_DOUBLE 1
+
+#define TB_TYPE TB_FLOAT
+
+#if TB_TYPE == TB_FLOAT
 typedef float tb_float;
+#else
+typedef double tb_float;
+#endif
 
 /**
  * \brief Tensor Shape

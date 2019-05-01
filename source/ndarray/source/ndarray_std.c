@@ -271,7 +271,6 @@ NDArray* nda_slice(struct NDArray* array, uint64_t* index){
         padding += index[idx]*shape->strides[i];
     }
     
-    // TODO: this might be an issue
     new_shape->raw_len = nda_getTotalSize(new_shape);
     
     NDArray* arr = calloc(1, sizeof(NDArray));

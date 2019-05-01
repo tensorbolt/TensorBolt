@@ -377,11 +377,15 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
         res_arr = nda_alloc(nda_newShape(2, lhsRows, rhsCols));
     }
     
+#if TB_TYPE == TB_FLOAT
+#define GEMM cblas_sgemm
+#else
+#define GEMM cblas_dgemm
+#endif
     
-    
-    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, lhsRows, rhsCols, lhsCols, 1.0, lhs->value->data, lhsCols,
-                rhs->value->data, rhsShape->strides[0], 0.0, res_arr->data, rhsCols);
-    
+    GEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, lhsRows, rhsCols, lhsCols, 1.0, lhs->value->data, lhsCols,
+     rhs->value->data, rhsShape->strides[0], 0.0, res_arr->data, rhsCols);
+#undef GEMM
     return tb_newResultNode(res_arr);
 }
 
