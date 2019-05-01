@@ -588,7 +588,7 @@ void runAllTests(){
     MU_REPORT();
 }
 
-void test(){
+void test1(){
     
     NDArray* x = nda_linspace(0, 11, 3*3*3*2);
     
@@ -600,6 +600,13 @@ void test(){
     TBResultNode* res = tb_runSession(NULL, g, NULL);
     
     nda_debugValue(res->value);
+}
+
+void test(){
+    NDShape* shape = nda_newShape(3, 2, 3, 2);
+    NDArray* x = nda_randomNormal(shape, 0.0, 2.0);
+    
+    nda_debugValue(x);
 }
 
 

@@ -704,11 +704,9 @@ TBResultNode* _tb_sum(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     return tb_newResultNode(new_arr);
 }
 
-
 TBResultNode* _tb_mean(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop){
     return NULL;
 }
-
 
 TBResultNode* _tb_argmax(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop){
     NDShape* shape = uhs->value->shape;

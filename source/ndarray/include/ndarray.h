@@ -202,6 +202,16 @@ uint64_t nda_getTotalSize(struct NDShape* shape);
 struct NDArray* nda_alloc(struct NDShape* shape);
 
 /**
+ * \brief Creates an array from a Guassian Distribution
+ * \param shape initial shape
+ * \param[in] mu Gussian's Mu parameters
+ * \param[in] sig Guaussian\s Sigma parameter
+ * \return randomly initialized array
+ */
+
+struct NDArray* nda_randomNormal(struct NDShape* shape, float mu, float sig);
+
+/**
  * \brief Return evenly spaced numbers over a specified interval.
  * \param[in] a start element
  * \param[in] b end element

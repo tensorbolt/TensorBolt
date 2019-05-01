@@ -49,9 +49,57 @@
 #include <string.h>
 #include <assert.h>
 #include <inttypes.h>
+#include <math.h>
+#include <time.h>
 
 #include "ndarray.h"
 #include "ndarray_std.h"
+
+#define ranf()   ((rand())/(double)RAND_MAX)
+
+/*
+ The following function comes from this source:
+ ftp://ftp.taygeta.com/pub/c/boxmuller.c
+ */
+
+/* boxmuller.c           Implements the Polar form of the Box-Muller
+                         Transformation
+ 
+                         (c) Copyright 1994, Everett F. Carter Jr.
+                         Permission is granted by the author to use
+                         this software for any application provided this
+                         copyright notice is preserved.
+ */
+
+float box_muller(float m, float s)    /* normal random variate generator */
+{                                     /* mean m, standard deviation s */
+    float x1, x2, w, y1;
+    static float y2;
+    static int use_last = 0;
+    
+    if (use_last)                     /* use value from previous call */
+    {
+        y1 = y2;
+        use_last = 0;
+    }
+    else
+    {
+        do {
+            x1 = 2.0 * ranf() - 1.0;
+            x2 = 2.0 * ranf() - 1.0;
+            w = x1 * x1 + x2 * x2;
+        } while ( w >= 1.0 );
+        
+        w = sqrt( (-2.0 * logf( w ) ) / w );
+        y1 = x1 * w;
+        y2 = x2 * w;
+        use_last = 1;
+    }
+    
+    return( m + y1 * s );
+}
+
+
 
 void nda_assert(int cond, const char * rawcond, const char* func_name, const char * fmt, ...){
     if(cond)
@@ -348,6 +396,27 @@ NDArray* nda_alloc(NDShape* shape){
     x->shape = shape;
     x->data = raw;
 
+    return x;
+}
+
+
+NDArray* nda_randomNormal(struct NDShape* shape, float mu, float sig){
+    uint64_t len = nda_getTotalSize(shape);
+    tb_float* raw = calloc(len, sizeof(tb_float));
+    
+    NDArray* x = calloc(1, sizeof(NDArray));
+    
+    uint64_t i = 0;
+    
+    srand(time(NULL));
+    
+    for(; i < len; i++){
+        raw[i] = (tb_float)box_muller(mu, sig);
+    }
+    
+    x->shape = shape;
+    x->data = raw;
+    
     return x;
 }
 
