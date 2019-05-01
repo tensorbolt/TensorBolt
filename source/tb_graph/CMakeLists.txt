@@ -18,6 +18,7 @@ set (PROJECT_SRCS
 	${PROJECT_SOURCE_DIR}/source/tb_factory.c
 	${PROJECT_SOURCE_DIR}/source/tb_session.c
 	${PROJECT_SOURCE_DIR}/source/tb_ops_cpu.c
+	${PROJECT_SOURCE_DIR}/source/tb_autograd.c
 )
 
 set (PROJECT_HEADERS
@@ -27,6 +28,7 @@ set (PROJECT_HEADERS
 	${PROJECT_SOURCE_DIR}/include/tb_operation.h
 	${PROJECT_SOURCE_DIR}/include/tb_errors.h
 	${PROJECT_SOURCE_DIR}/include/tb_ops.h
+	${PROJECT_SOURCE_DIR}/include/tb_autograd.h
 )
 
 add_library(tb_graph
