@@ -588,32 +588,10 @@ void runAllTests(){
     MU_REPORT();
 }
 
-void test1(){
-    
-    NDArray* x = nda_linspace(0, 11, 3*3*3*2);
-    
-    TBNode* n0 = tb_newConstantNode(x);
-    
-    TBNode* n2 = tb_newAxisBoundOpNode(TBABOT_ARGMAX, n0, 0);
-    TBGraph* g = tb_newGraph("test", n2);
-    
-    TBResultNode* res = tb_runSession(NULL, g, NULL);
-    
-    nda_debugValue(res->value);
-}
-
-void test(){
-    NDShape* shape = nda_newShape(3, 2, 3, 2);
-    NDArray* x = nda_randomNormal(shape, 0.0, 2.0);
-    
-    nda_debugValue(x);
-}
-
-
 int main(){
     printf("<TensorBolt & NDArray Unit Tests>\n\n");
     
-    //runAllTests();
-    test();
+    runAllTests();
+    
     return 0;
 }

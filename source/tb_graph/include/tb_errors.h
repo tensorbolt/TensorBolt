@@ -46,6 +46,7 @@
 #ifndef _TB_ERRORS_H_
 #define _TB_ERRORS_H_
 
+#include <tb_graph.h>
 
 /**
  * \brief List of errors that can occure during computations

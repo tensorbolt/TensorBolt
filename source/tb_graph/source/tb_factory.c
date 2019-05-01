@@ -78,17 +78,22 @@ TBNode* tb_newConstantNode(NDArray* array){
     
 }
 
-/*
- * TODO: Implement TBGraphNodeParam binding
- */
 TBNode* tb_newGraphNode(TBGraph* graph, TBGraphNodeParam** params){
-	ASSERT(params == NULL, "second argument should be NULL as it is not supported yet");
     TBGraphNode * graphNode = calloc(1, sizeof(TBGraphNode));
     graphNode->graph = graph;
     graphNode->params = params;
     
 	TB_ALLOC_NODE(node, TBNT_GRAPH, 1, graphNode);
 	
+    if(params != NULL){
+        TBGraphNodeParam* param = params[0];
+        uint64_t i = 0;
+        while((param->node != NULL) && (param->var_name != NULL)){
+            tb_graphSetVar(graph, param->node, param->var_name);
+            param = params[++i];
+        }
+    }
+    
 	return node;
 }
 

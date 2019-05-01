@@ -75,9 +75,10 @@ TBGraph* tb_newGraph(char* name, TBNode* rootNode){
 
     map_init(&graph->vars);
 
-    // TODO: add nodes to the list
     vec_init(&graph->nodes);
 
+    tb_storeNodesInGraph(graph, rootNode);
+    
     return graph;
 }
 
@@ -133,5 +134,8 @@ void tb_storeNodesInGraph(TBGraph* graph, TBNode* node){
 		case TBNT_GRAPH:
 			tb_storeNodesInGraph(graph, ((TBGraph*)node->nodePtr)->root);
 			break;
-	}
+        case TBNT_AXES_TRANSPOSE:
+            tb_storeNodesInGraph(graph, ((TBTransposeOperation*)node->nodePtr)->uhs);
+            break;
+    }
 }
