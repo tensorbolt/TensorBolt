@@ -51,6 +51,7 @@
 #include <tb_session.h>
 
 
+void tb_autogradGraph(struct TBGraphSession* session);
 void tb_autogradNode(TBGraph* graph, TBNode* node);
 
 

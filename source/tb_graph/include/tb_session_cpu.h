@@ -43,6 +43,11 @@
  * @brief File containing Session data structure for creating sessions and running graphs on CPU.
  */
 
+#ifndef _TB_SESSION_CPU_
+#define _TB_SESSION_CPU_
+
 typedef struct TBGraphSession{
     uint8_t dummy;
 }TBGraphSession;
+
+#endif

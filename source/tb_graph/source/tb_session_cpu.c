@@ -52,6 +52,9 @@
 #include <tb_factory.h>
 #include <tb_ops.h>
 
+#include <ndarray.h>
+#include <ndarray_std.h>
+
 /* * * * * * * *
  * Session API *
  * * * * * * * */
@@ -90,10 +93,6 @@ TBResultNode* tb_runSession(TBGraphSession* session, TBGraph* graph, TBGraphNode
     return _run_Node(session, graph, root);
 }
 
-// TODO
-void tb_freeSession(TBGraphSession* session){
-
-}
 
 /* * * * * * * * * * * * *
  * Graph Processing  API *
@@ -139,6 +138,10 @@ static TBResultNode* _run_Node(TBGraphSession* session, TBGraph* graph, TBNode* 
             return _run_AxisBoundOperation(session, graph, node);
         case TBNT_AXES_TRANSPOSE:
             return _run_TransposeOperation(session, graph, node);
+    }
+    
+    if(node->diff == NULL){
+        node->diff = tb_newConstantNode(nda_alloc(res->value->shape));
     }
     
     return res;
@@ -242,4 +245,8 @@ static TBResultNode* _run_TransposeOperation(TBGraphSession* session, TBGraph* g
     TBResultNode* uhs = _run_Node(session, graph, top->uhs);
     
     return _tb_transpose(session, graph, node, uhs, top);
+}
+
+void tb_freeSession(struct TBGraphSession* session){
+    free(session);
 }
