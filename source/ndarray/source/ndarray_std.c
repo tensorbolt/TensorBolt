@@ -468,6 +468,6 @@ void nda_reshape(NDArray* x, NDShape* shape){
 void nda_free(NDArray* array){
     free(array->data);
     free(array->shape->dims);
+    free(array->shape->strides);
     free(array->shape);
-    free(array);
 }

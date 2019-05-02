@@ -172,9 +172,22 @@ TBGraph* tb_newGraph(char* name, TBNode* rootNode);
 
 /**
  * \brief Frees a graph
- * \param[out] graph Graph to deallocate
+ * \param[in/out] graph Graph to deallocate
  */
 void tb_freeGraph(TBGraph* graph);
+
+/**
+ * \brief Frees a node
+ * \param [in/out] graph parent graph
+ * \param[in/out] node Node to free
+ */
+void tb_freeNode(TBGraph* graph, TBNode* node);
+
+/**
+ * \brief Frees a result node
+ * \param[in/out] node Result Node to free
+ */
+void tb_freeResultNode(TBGraph* graph, TBResultNode* node);
 
 /**
  * \brief Binds a node with a variable name within the graph

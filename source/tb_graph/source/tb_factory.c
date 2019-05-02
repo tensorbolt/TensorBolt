@@ -56,7 +56,8 @@
 TBNode* node = calloc(1, sizeof(TBNode));\
 node->calc_grad = grad;\
 node->type = t;\
-node->nodePtr = ptrVal;
+node->nodePtr = ptrVal;\
+node->diff = NULL;
 
 TBNode* tb_newVarNode(char* name){
 	TBVariable* var = calloc(1, sizeof(TBVariable));

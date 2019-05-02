@@ -139,3 +139,58 @@ void tb_storeNodesInGraph(TBGraph* graph, TBNode* node){
             break;
     }
 }
+
+void tb_freeNode(TBGraph* graph, TBNode* node){
+    if (node->diff != NULL){
+        tb_freeNode(graph, node->diff);
+        free(node->diff);
+    }
+    
+    if(node->result != NULL){
+        tb_freeResultNode(graph, node->result);
+        free(node->result);
+    }
+    
+    switch(node->type){
+        case TBNT_VARIABLE:
+            free(node->nodePtr);
+            break;
+            
+        case TBNT_CONSTANT:
+            nda_free(((TBConstant*)node->nodePtr)->value);
+            free(node->nodePtr);
+            break;
+            
+        case TBNT_GRAPH:
+            // TODO
+            break;
+            
+        case TBNT_BINARY_OPERATION:
+            free(node->nodePtr);
+            break;
+            
+        case TBNT_UNARY_OPERATION:
+            free(node->nodePtr);
+            break;
+            
+        case TBNT_AXIS_BOUND_OPERATION:
+            free(node->nodePtr);
+            break;
+            
+        case TBNT_AXES_TRANSPOSE:
+            free(node->nodePtr);
+            break;
+    }
+}
+
+void tb_freeResultNode(TBGraph* graph, TBResultNode* node){
+    if(node->error){
+        free(node->error);
+    }
+    
+    if(node->value != NULL){
+        nda_free(node->value);
+        free(node->value);
+    }
+}
+
