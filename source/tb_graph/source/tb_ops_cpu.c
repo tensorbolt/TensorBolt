@@ -924,7 +924,7 @@ TBResultNode* _tb_product(TBGraphSession* sess, TBGraph* graph, TBNode* node, TB
         
         for(k=0; k < shape->dims[axis]; j+=shape->strides[axis],k++){
             //printf("%lld, %lld, %f\n", i, j,  arr->data[j]);
-            new_arr->data[i] += arr->data[j];
+            new_arr->data[i] *= arr->data[j];
         }
     }
     
