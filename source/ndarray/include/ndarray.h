@@ -231,10 +231,18 @@ struct NDArray* nda_linspace(tb_float a, tb_float b, uint64_t n);
 
 /**
  * \brief Creates an One initialized tensor
- * \param shape initial shape
+ * \param shape[in] initial shape
  * \return 1-initialized tensor
  */
 struct NDArray* nda_ones(struct NDShape* shape);
+
+/**
+ * \brief Creates an array initialized with one value
+ * \param shape[in] initial shape
+ * \param value[in] value to initialize the array with
+ * \return Array whos elements are initialized by value
+ */
+struct NDArray* nda_fill(struct NDShape* shape, tb_float value);
 
 /**
  * \brief copies an existent tensor, memory must be explicitly freed.

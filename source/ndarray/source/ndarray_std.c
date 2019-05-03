@@ -459,6 +459,10 @@ NDArray* nda_copy(NDArray* x){
 }
 
 NDArray* nda_ones(NDShape* shape){
+    return nda_fill(shape, 1.0f);
+}
+
+struct NDArray* nda_fill(struct NDShape* shape, tb_float value){
     uint64_t len = nda_getTotalSize(shape);
     tb_float* raw = calloc(len, sizeof(tb_float));
     
@@ -467,7 +471,7 @@ NDArray* nda_ones(NDShape* shape){
     size_t i = 0;
     
     for(; i < len; i++)
-        raw[i] = 1;
+        raw[i] = value;
     
     x->shape = shape;
     x->data = raw;
