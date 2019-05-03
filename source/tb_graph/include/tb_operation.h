@@ -129,6 +129,9 @@ typedef struct TBAxisBoundOperation{
 }TBAxisBoundOperation;
 
 
+/**
+ * \brief Transposition operation, i.e swaps two axis of a NDArray
+ */
 typedef struct TBTransposeOperation{
     struct TBNode* uhs;               /**< UHS */
     uint64_t axis1;                   /**< First axis to swap */

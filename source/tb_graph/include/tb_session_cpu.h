@@ -37,7 +37,7 @@
  ****************************************************************************/
 
 /**
- * @file tb_session.h
+ * @file tb_session_cpu.h
  * @author Soulaymen Chouri
  * @date May 1st 2019
  * @brief File containing Session data structure for creating sessions and running graphs on CPU.
