@@ -142,7 +142,7 @@ void tb_storeNodesInGraph(TBGraph* graph, TBNode* node){
 
 void tb_freeNode(TBGraph* graph, TBNode* node){
     if (node->diff != NULL){
-        tb_freeNode(graph, node->diff);
+        tb_freeResultNode(graph, node->diff);
         free(node->diff);
     }
     
