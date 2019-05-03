@@ -65,6 +65,13 @@ TBNode* tb_newVarNode(char* name);
 TBNode* tb_newConstantNode(struct NDArray* array);
 
 /**
+ * \brief Copies an existing constant node
+ * \param[in] node Node to copy (by value, ie deep copy)
+ * \return new constant node
+ */
+TBNode* tb_copyConstantNode(TBNode* conn);
+
+/**
  * \brief Creates a new graph node
  * \param[in] graph Nested graph to use
  * \param[in] params node-variable name pairs to be assigned from the parent graph to the child graph.

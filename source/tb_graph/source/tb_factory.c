@@ -76,7 +76,19 @@ TBNode* tb_newConstantNode(NDArray* array){
     TB_ALLOC_NODE(node, TBNT_CONSTANT, 1, c);
     
     return node;
+}
+
+
+TBNode* tb_copyConstantNode(TBNode* con){
+    ASSERT(con != NULL, "NULL node passed to copy a constant node");
+    ASSERT(con->type == TBNT_CONSTANT, "Non-constant node node passed to copy a constant node");
+    TBConstant* conn = (TBConstant*)con->nodePtr;
+    TBConstant* c = calloc(1, sizeof(TBConstant));
+    c->value = nda_copy(conn->value);
     
+    TB_ALLOC_NODE(node, TBNT_CONSTANT, 1, c);
+    
+    return node;
 }
 
 TBNode* tb_newGraphNode(TBGraph* graph, TBGraphNodeParam** params){
