@@ -66,6 +66,10 @@
 #endif
 #endif
 
+#ifdef ASSERT
+#undef ASSERT
+#endif
+
 #define TB_ASSERT_LOG
 
 #if defined(TB_ASSERT_STANDARD)
@@ -124,7 +128,7 @@ typedef struct TBNode {
     void* nodePtr;                 /**< Pointer to the actual node structure */
     uint8_t calc_grad;             /**< Boolean flag indicating that the gradient will be calculated for this node. If it is set to false, its child will also be set to false */
     struct TBResultNode* result;   /**< Pointer to the actual result of the node, in order to improve performance . */
-    struct TBNode* diff;           /**< Pointer to the derivative of this node w.r.t to the root node in the graph. */
+    struct TBResultNode* diff;     /**< Pointer to the derivative of this node w.r.t to the root node in the graph. */
 }TBNode;
 
 /**
