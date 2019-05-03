@@ -53,6 +53,7 @@
  * A session encapsulates the execution environment of graphs.
  */
 struct TBGraphSession;
+struct TBGraphNodeParam;
 
 /* * * * * * * *
  * Session API *
@@ -78,6 +79,15 @@ struct TBGraphSession* tb_createLocalCPUSession();
  * \return computation result which can be checked for error
  */
 struct TBResultNode* tb_runSession(struct TBGraphSession* session, struct TBGraph* graph, struct TBGraphNodeParam** params);
+
+/**
+ * \brief Computes session with no parent graph
+ * \param[in] session Session to run
+ * \param[in/out] node Node to run
+ * \return computation result which can be checked for error
+ */
+struct TBResultNode* tb_runSessionNodeOnly(struct TBGraphSession* session, struct TBNode* node);
+
 
 /**
  * \brief Deallocates/frees a session after use, graph is freed as well. 

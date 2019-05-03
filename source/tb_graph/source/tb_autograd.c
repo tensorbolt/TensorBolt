@@ -42,4 +42,137 @@
  * @brief File containing Automatic differenciation
  */
 
+#include <ndarray.h>
+#include <ndarray_std.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+
 #include <tb_autograd.h>
+#include <tb_graph.h>
+#include <tb_factory.h>
+#include <tb_operation.h>
+
+
+static void _tb_freeNodeDiff(TBNode* node){
+    tb_freeResultNode(NULL, node->diff);
+    free(node->diff);
+}
+
+static TBNode* _tb_adaptDiffToShape(TBNode* diff_node, NDShape* diffShape, NDShape* valueShape){
+    uint64_t d = valueShape->rank - diffShape->rank;
+    uint64_t k = d;
+    
+    while(d > 0){
+        diff_node =tb_newAxisBoundOpNode(TBABOT_SUM, diff_node, 0);
+        d--;
+    }
+    
+    uint64_t i = 0;
+    
+    for(; i < diffShape->rank; i++){
+        if(diffShape->dims[i] < valueShape->dims[i+k]){
+            diff_node = tb_newAxisBoundOpNode(TBABOT_SUM, diff_node, i);
+        }
+    }
+    
+    return diff_node;
+}
+
+
+void tb_autogradGraph(struct TBGraphSession* session, TBGraph* graph){
+    graph->root->diff = tb_newResultNode(nda_ones(nda_copyShape(graph->root->result->value->shape)));
+    tb_autogradNode(session, graph, graph->root);
+}
+
+static TBNode* _tb_convertResultNodeToNode(TBResultNode* res){
+    return tb_newConstantNode(nda_copy(res->value));
+}
+
+static TBResultNode* _tb_convertNodetoResultNode(TBNode* res){
+    ASSERT(res->type == TBNT_CONSTANT, "Cannot convert non constant node to result node");
+    return tb_newResultNode(nda_copy(((TBConstant*)res->nodePtr)->value));
+}
+
+void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* node){
+    switch(node->type){
+            
+        case TBNT_CONSTANT:
+            printf("constant found\n");
+            break;
+        
+        case TBNT_VARIABLE:{
+            const char* name = ((TBVariable*)node->nodePtr)->name;
+            TBNode* original = tb_graphGetVar(graph, name);
+            original->diff = (node->diff);
+            break;
+        }
+            
+        case TBNT_GRAPH:
+            // TODO
+            break;
+        case TBNT_BINARY_OPERATION:
+        {
+            TBBinaryOperation* bop = (TBBinaryOperation*)node->nodePtr;
+            NDShape* lhsDiffShape = bop->lhs->diff->value->shape;
+            NDShape* rhsDiffShape = bop->rhs->diff->value->shape;
+            
+            switch (bop->type) {
+                case TBBOT_ADD:
+                {
+                    TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD, _tb_convertResultNodeToNode(bop->lhs->diff), _tb_convertResultNodeToNode(node->diff));
+                    
+                    mult1 = _tb_adaptDiffToShape(mult1, lhsDiffShape, node->result->value->shape);
+                    TBResultNode* res1 = tb_runSessionNodeOnly(session, mult1);
+                    _tb_freeNodeDiff(bop->lhs);
+                    bop->lhs->diff = (res1);
+                    
+                    TBNode* mult2 = tb_newBinaryOpNode(TBBOT_ADD, _tb_convertResultNodeToNode(bop->rhs->diff), _tb_convertResultNodeToNode(node->diff));
+                   
+                    mult2 = _tb_adaptDiffToShape(mult2, rhsDiffShape, node->result->value->shape);
+                    
+                    TBResultNode* res2 = tb_runSessionNodeOnly(session, mult2);
+                    _tb_freeNodeDiff(bop->rhs);
+                    bop->rhs->diff = (res2);
+                    
+                    tb_autogradNode(session, graph, bop->lhs);
+                    tb_autogradNode(session, graph, bop->rhs);
+                    
+                    break;
+                }
+                case TBBOT_SUB:
+                    
+                    break;
+                case TBBOT_MULT:
+                    
+                    break;
+                case TBBOT_DIV:
+                    
+                    break;
+                case TBBOT_POW:
+                    
+                    break;
+                case TBBOT_DOT:
+                    
+                    break;
+            }
+            break;
+        }
+        case TBNT_UNARY_OPERATION:
+            
+            break;
+        case TBNT_AXIS_BOUND_OPERATION:
+            
+            break;
+        case TBNT_AXES_TRANSPOSE:
+            
+            break;
+    }
+    printf("node type = %d\n", node->type);
+    printf("node value\n");
+    nda_debugValue(node->result->value);
+    printf("node diff\n");
+    nda_debugValue(node->diff->value);
+    printf("----------\n\n");
+}

@@ -90,7 +90,18 @@ TBResultNode* tb_runSession(TBGraphSession* session, TBGraph* graph, TBGraphNode
     
     tb_storeNodesInGraph(graph, root);
     
+    // TODO: free stuff
+    
     return _run_Node(session, graph, root);
+}
+
+struct TBResultNode* tb_runSessionNodeOnly(struct TBGraphSession* session, struct TBNode* node){
+    TBGraph* g_tmp = tb_newGraph("tmp0001", node);
+    TBResultNode* res = tb_runSession(session, g_tmp, NULL);
+    
+    // TODO: free stuff
+    
+    return res;
 }
 
 
@@ -131,18 +142,24 @@ static TBResultNode* _run_Node(TBGraphSession* session, TBGraph* graph, TBNode* 
             break;
         }
         case TBNT_BINARY_OPERATION:
-            return _run_BinaryOperation(session, graph, node);
+            res =  _run_BinaryOperation(session, graph, node);
+            break;
         case TBNT_UNARY_OPERATION:
-            return _run_UnaryOperation(session, graph, node);
+            res =  _run_UnaryOperation(session, graph, node);
+            break;
         case TBNT_AXIS_BOUND_OPERATION:
-            return _run_AxisBoundOperation(session, graph, node);
+            res =  _run_AxisBoundOperation(session, graph, node);
+            break;
         case TBNT_AXES_TRANSPOSE:
-            return _run_TransposeOperation(session, graph, node);
+            res =  _run_TransposeOperation(session, graph, node);
+            break;
     }
     
     if(node->diff == NULL){
-        node->diff = tb_newConstantNode(nda_alloc(res->value->shape));
+        node->diff = tb_newResultNode(nda_alloc(res->value->shape));
     }
+    
+    node->result = tb_newResultNode(nda_copy(res->value));
     
     return res;
 }

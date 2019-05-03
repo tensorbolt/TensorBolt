@@ -714,7 +714,7 @@ TBResultNode* _tb_mean(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBRes
 
 TBResultNode* _tb_argmax(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop){
     NDShape* shape = uhs->value->shape;
-    NDArray* arr = uhs->value;
+    //NDArray* arr = uhs->value;
     
     uint64_t axis = abop->axis;
     
@@ -793,7 +793,7 @@ TBResultNode* _tb_argmax(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBR
 
 TBResultNode* _tb_argmin(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBAxisBoundOperation* abop){
     NDShape* shape = uhs->value->shape;
-    NDArray* arr = uhs->value;
+    //NDArray* arr = uhs->value;
     
     uint64_t axis = abop->axis;
     

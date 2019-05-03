@@ -13,6 +13,8 @@
 #include <tb_factory.h>
 #include <tb_ops.h>
 
+#include <tb_autograd.h>
+
 #define ASSERT_SHAPE_EQ(shape, values)\
 {\
 uint64_t i = 0;\
@@ -588,10 +590,36 @@ void runAllTests(){
     MU_REPORT();
 }
 
+
+void test(){
+    
+    NDArray* x = nda_linspace(0, 1, 3);
+    nda_reshape(x, nda_newShape(2, 3, 1));
+    
+    nda_debugValue(x);
+    NDArray* y = nda_linspace(0, 1, 3);
+    nda_debugValue(y);
+    
+    
+    TBNode* n0 = tb_newConstantNode(x);
+    TBNode* n1 = tb_newConstantNode(y);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_ADD, n0, n1);
+    
+    TBGraph* g = tb_newGraph("test", n2);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    nda_debugValue(res->value);
+    
+    tb_autogradGraph(NULL, g);
+    
+}
+
 int main(){
     printf("<TensorBolt & NDArray Unit Tests>\n\n");
     
-    runAllTests();
+    //runAllTests();
+    test();
     
     return 0;
 }
