@@ -36,7 +36,7 @@
  ****************************************************************************/
 
 /**
- * @file tb_ops
+ * @file tb_ops.h
  * @author Soulaymen Chouri
  * @date March 21 2019
  * @brief File containing generic graph operations that must be overrided.

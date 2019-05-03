@@ -91,8 +91,9 @@ typedef enum TBErrorType {
 
 #define TB_MAX_ERROR_TYPE TBET_NO_GRAPH_INSTANCE
 
-
-
+/**
+ * \brief This structure holds information of any error that occure during Graph processing
+ */
 typedef struct TBError {
 	TBErrorType errorType;      /**< Which type of error has occured. */
 	struct TBNode* faultyNode;  /**< Which node caused the error. */
