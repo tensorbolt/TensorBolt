@@ -211,7 +211,7 @@ char* nda_shapeToString(NDShape* shape){
         offset += snprintf(buf+offset, 1024, ".dims[%zu] = %"PRIu64", ", i, shape->dims[i]);
     }
     
-    snprintf(buf+offset, 1024, ")\0");
+    snprintf(buf+offset, 1024, ")");
     
     return strdup(buf);
 }
@@ -382,6 +382,13 @@ uint8_t nda_shapeCanBroadCast(NDShape* shape1, NDShape* shape2){
     if(shape1->raw_len > shape2->raw_len){
         return 1;
     }
+    if(shape1->raw_len < shape2->raw_len){
+        return 2;
+    }
+    
+    if(shape1->rank > shape2->rank){
+        return 1;
+    }
     
     return 2;
 }
@@ -451,6 +458,22 @@ NDArray* nda_copy(NDArray* x){
     return x_cpy;
 }
 
+NDArray* nda_ones(NDShape* shape){
+    uint64_t len = nda_getTotalSize(shape);
+    tb_float* raw = calloc(len, sizeof(tb_float));
+    
+    NDArray* x = calloc(1, sizeof(NDArray));
+    
+    size_t i = 0;
+    
+    for(; i < len; i++)
+        raw[i] = 1;
+    
+    x->shape = shape;
+    x->data = raw;
+    
+    return x;
+}
 
 void nda_reshape(NDArray* x, NDShape* shape){
     NDShape* old_shape = x->shape;

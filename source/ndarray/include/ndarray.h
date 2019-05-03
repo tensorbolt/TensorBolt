@@ -230,6 +230,13 @@ struct NDArray* nda_randomNormal(struct NDShape* shape, float mu, float sig);
 struct NDArray* nda_linspace(tb_float a, tb_float b, uint64_t n);
 
 /**
+ * \brief Creates an One initialized tensor
+ * \param shape initial shape
+ * \return 1-initialized tensor
+ */
+struct NDArray* nda_ones(struct NDShape* shape);
+
+/**
  * \brief copies an existent tensor, memory must be explicitly freed.
  * \param[in] x tensor to copy
  * \return copy of x, must be explicitly freed
