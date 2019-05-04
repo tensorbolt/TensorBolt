@@ -117,7 +117,7 @@ uint8_t nda_ShapeStackCanPop(struct NDShapeStack* stack);
 uint64_t nda_ShapeStackPop(struct NDShapeStack* stack);
 
 /**
- * Array location
+ * \brief Array location
  */
 typedef enum NDArrayLocation {
     NDA_LOC_HOST_MEM=0,   /**< Array is located on the host memory (RAM) */
@@ -130,7 +130,7 @@ typedef enum NDArrayLocation {
 struct NDArray;
 
 /**
- * Creates a new shape from the given elements dimensions
+ * \brief Creates a new shape from the given elements dimensions
  * \param[in] rank number of dimensions
  * \param[in] ... list of dimensions (variadic parameters)
  * \return new NDShape
@@ -138,7 +138,7 @@ struct NDArray;
 struct NDShape* nda_newShape(uint64_t rank, ...);
 
 /**
- * Creates a new shape from the given elements dimensions as array
+ * \brief Creates a new shape from the given elements dimensions as array
  * \param[in] rank number of dimensions
  * \param[in] array of dims, should be dynamically allocated as it will be freed when
  *            the shape is destroyed. len(array) must be equal to rank
@@ -147,7 +147,7 @@ struct NDShape* nda_newShape(uint64_t rank, ...);
 struct NDShape* nda_newShapeFromArray(uint64_t rank, uint64_t* dims);
 
 /**
- * Creates a new shape from the given elements dimensions as array
+ * \brief Creates a new shape from the given elements dimensions as array
  * \param[in] rank number of dimensions
  * \param[in] array of dims, this array will be copied and the copy will be assigned to the new shape.
  *            len(array) must be equal to rank
