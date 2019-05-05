@@ -50,8 +50,20 @@
 #include <tb_operation.h>
 #include <tb_session.h>
 
-
+/**
+ * \brief Computes derivative of each node on the graph, initial derivative must be manually set.
+ * \param session[in] The session on which the graph will be computed
+ * \param graph[in/out] The Graph to process
+ */
 void tb_autogradGraph(struct TBGraphSession* session, TBGraph* graph);
+
+/**
+ * \brief Computes the derivative of the node and its childs based on its parent derivative.
+ * This function is automatically called by `tb_autogradGraph`.
+ * \param session[in] The session on which the node will be processed
+ * \param graph[in/out] The parent graph, to fech variables when needed.
+ * \param node[in/out] the node to process
+ */
 void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* node);
 
 
