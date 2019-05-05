@@ -182,7 +182,7 @@ NDShape* nda_newShapeFromArray(uint64_t rank, uint64_t* dims){
 }
 
 NDShape* nda_newShapeFromArrayCopy(uint64_t rank, uint64_t* dims){
-    uint64_t arr = __nda__copyArray(rank, dims);
+    uint64_t* arr = __nda__copyArray(rank, dims);
     return nda_newShapeFromArray(rank, arr);
 }
 
