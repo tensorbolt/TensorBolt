@@ -593,17 +593,17 @@ void runAllTests(){
 
 void test(){
     
-    NDArray* x = nda_linspace(0, 1, 3);
+    NDArray* x = nda_linspace(1, 3, 3);
     nda_reshape(x, nda_newShape(2, 3, 1));
     
     nda_debugValue(x);
-    NDArray* y = nda_linspace(0, 1, 3);
+    NDArray* y = nda_linspace(1, 3, 3);
     nda_debugValue(y);
     
     
     TBNode* n0 = tb_newConstantNode(x);
     TBNode* n1 = tb_newConstantNode(y);
-    TBNode* n2 = tb_newBinaryOpNode(TBBOT_ADD, n0, n1);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_POW, n0, n1);
     
     TBGraph* g = tb_newGraph("test", n2);
     

@@ -70,7 +70,6 @@ static TBNode* _tb_adaptDiffToShape(TBNode* diff_node, NDShape* diffShape, NDSha
     }
     
     uint64_t i = 0;
-    
     for(; i < diffShape->rank; i++){
         if(diffShape->dims[i] < valueShape->dims[i+k]){
             diff_node = tb_newAxisBoundOpNode(TBABOT_SUM, diff_node, i);
@@ -94,6 +93,8 @@ static TBResultNode* _tb_convertNodetoResultNode(TBNode* res){
     ASSERT(res->type == TBNT_CONSTANT, "Cannot convert non constant node to result node");
     return tb_newResultNode(nda_copy(((TBConstant*)res->nodePtr)->value));
 }
+
+
 
 void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* node){
     switch(node->type){
@@ -121,19 +122,27 @@ void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* nod
             switch (bop->type) {
                 case TBBOT_ADD:
                 {
-                    TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD, _tb_convertResultNodeToNode(bop->lhs->diff), _tb_convertResultNodeToNode(node->diff));
+                    TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->lhs->diff),
+                                                       _tb_convertResultNodeToNode(node->diff)
+                                                       );
                     
                     mult1 = _tb_adaptDiffToShape(mult1, lhsDiffShape, node->result->value->shape);
                     TBResultNode* res1 = tb_runSessionNodeOnly(session, mult1);
                     _tb_freeNodeDiff(bop->lhs);
+                    nda_reshape(res1->value, nda_copyShape(bop->lhs->result->value->shape));
                     bop->lhs->diff = (res1);
                     
-                    TBNode* mult2 = tb_newBinaryOpNode(TBBOT_ADD, _tb_convertResultNodeToNode(bop->rhs->diff), _tb_convertResultNodeToNode(node->diff));
+                    TBNode* mult2 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->rhs->diff),
+                                                       _tb_convertResultNodeToNode(node->diff)
+                                                       );
                    
                     mult2 = _tb_adaptDiffToShape(mult2, rhsDiffShape, node->result->value->shape);
                     
                     TBResultNode* res2 = tb_runSessionNodeOnly(session, mult2);
                     _tb_freeNodeDiff(bop->rhs);
+                    nda_reshape(res2->value, nda_copyShape(bop->rhs->result->value->shape));
                     bop->rhs->diff = (res2);
                     
                     tb_autogradNode(session, graph, bop->lhs);
@@ -142,17 +151,170 @@ void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* nod
                     break;
                 }
                 case TBBOT_SUB:
+                {
+                    TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->lhs->diff),
+                                                       _tb_convertResultNodeToNode(node->diff)
+                                                       );
+                    
+                    mult1 = _tb_adaptDiffToShape(mult1, lhsDiffShape, node->result->value->shape);
+                    TBResultNode* res1 = tb_runSessionNodeOnly(session, mult1);
+                    _tb_freeNodeDiff(bop->lhs);
+                    nda_reshape(res1->value, nda_copyShape(bop->lhs->result->value->shape));
+                    bop->lhs->diff = (res1);
+                    
+                    TBNode* mult2 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->rhs->diff),
+                                                       tb_newUnaryOpNode(TBUOT_MINUS,
+                                                                         _tb_convertResultNodeToNode(node->diff)
+                                                                         )
+                                                       );
+                    
+                    mult2 = _tb_adaptDiffToShape(mult2, rhsDiffShape, node->result->value->shape);
+                    
+                    TBResultNode* res2 = tb_runSessionNodeOnly(session, mult2);
+                    nda_reshape(res2->value, nda_copyShape(bop->rhs->result->value->shape));
+                    _tb_freeNodeDiff(bop->rhs);
+                    bop->rhs->diff = (res2);
+                    
+                    tb_autogradNode(session, graph, bop->lhs);
+                    tb_autogradNode(session, graph, bop->rhs);
                     
                     break;
+                }
                 case TBBOT_MULT:
+                {
+                    TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->lhs->diff),
+                                                       tb_newBinaryOpNode(TBBOT_MULT,
+                                                                          _tb_convertResultNodeToNode(node->diff),
+                                                                          _tb_convertResultNodeToNode(bop->rhs->result)
+                                                                          )
+                                                       );
+                    
+                    mult1 = _tb_adaptDiffToShape(mult1, lhsDiffShape, node->result->value->shape);
+                    TBResultNode* res1 = tb_runSessionNodeOnly(session, mult1);
+                    nda_reshape(res1->value, nda_copyShape(bop->lhs->result->value->shape));
+                    _tb_freeNodeDiff(bop->lhs);
+                    bop->lhs->diff = (res1);
+                    
+                    TBNode* mult2 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->rhs->diff),
+                                                       tb_newBinaryOpNode(TBBOT_MULT,
+                                                                          _tb_convertResultNodeToNode(node->diff),
+                                                                          _tb_convertResultNodeToNode(bop->lhs->result)
+                                                                          )
+                                                       );
+                    
+                    mult2 = _tb_adaptDiffToShape(mult2, rhsDiffShape, node->result->value->shape);
+                    
+                    TBResultNode* res2 = tb_runSessionNodeOnly(session, mult2);
+                    nda_reshape(res2->value, nda_copyShape(bop->rhs->result->value->shape));
+                    _tb_freeNodeDiff(bop->rhs);
+                    bop->rhs->diff = (res2);
+                    
+                    tb_autogradNode(session, graph, bop->lhs);
+                    tb_autogradNode(session, graph, bop->rhs);
                     
                     break;
+                }
                 case TBBOT_DIV:
+                {
+                    TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->lhs->diff),
+                                                       tb_newBinaryOpNode(TBBOT_MULT,
+                                                                          _tb_convertResultNodeToNode(node->diff),
+                                                                          tb_newBinaryOpNode(TBBOT_DIV,
+                                                                                             tb_newConstantNode(nda_ones(nda_newShape(1, 1))),
+                                                                                             _tb_convertResultNodeToNode(bop->rhs->result)
+                                                                                             )
+                                                                          )
+                                                       );
+                    
+                    mult1 = _tb_adaptDiffToShape(mult1, lhsDiffShape, node->result->value->shape);
+                    TBResultNode* res1 = tb_runSessionNodeOnly(session, mult1);
+                    nda_reshape(res1->value, nda_copyShape(bop->lhs->result->value->shape));
+                    _tb_freeNodeDiff(bop->lhs);
+                    bop->lhs->diff = (res1);
+                    
+                    TBNode* mult2 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->rhs->diff),
+                                                       tb_newBinaryOpNode(TBBOT_MULT,
+                                                                          tb_newUnaryOpNode(TBUOT_MINUS,
+                                                                                            tb_newBinaryOpNode(TBBOT_DIV,
+                                                                                                               _tb_convertResultNodeToNode(bop->lhs->result),
+                                                                                                               tb_newBinaryOpNode(TBBOT_POW,
+                                                                                                                                  _tb_convertResultNodeToNode(bop->rhs->result),
+                                                                                                                                  tb_newConstantNode(nda_fill(1, 2))
+                                                                                                                                  )
+                                                                                                               )
+                                                                                            ),
+                                                                          _tb_convertResultNodeToNode(node->diff)
+                                                                          )
+                                                       );
+                    
+                    mult2 = _tb_adaptDiffToShape(mult2, rhsDiffShape, node->result->value->shape);
+                    
+                    TBResultNode* res2 = tb_runSessionNodeOnly(session, mult2);
+                    nda_reshape(res2->value, nda_copyShape(bop->rhs->result->value->shape));
+                    _tb_freeNodeDiff(bop->rhs);
+                    bop->rhs->diff = (res2);
+                    
+                    tb_autogradNode(session, graph, bop->lhs);
+                    tb_autogradNode(session, graph, bop->rhs);
                     
                     break;
+                }
                 case TBBOT_POW:
+                {
+                    TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->lhs->diff),
+                                                       tb_newBinaryOpNode(TBBOT_MULT,
+                                                                          _tb_convertResultNodeToNode(node->diff),
+                                                                          tb_newBinaryOpNode(TBBOT_MULT,
+                                                                                             _tb_convertResultNodeToNode(bop->rhs->result),
+                                                                                             tb_newBinaryOpNode(TBBOT_POW,
+                                                                                                                _tb_convertResultNodeToNode(bop->lhs->result),
+                                                                                                                tb_newBinaryOpNode(TBBOT_SUB,
+                                                                                                                                   _tb_convertResultNodeToNode(bop->rhs->result),
+                                                                                                                                   tb_newConstantNode(nda_ones(nda_newShape(1, 1)))
+                                                                                                                                   )
+                                                                                                                )
+                                                                                             )
+                                                                          )
+                                                       );
+                    
+                    mult1 = _tb_adaptDiffToShape(mult1, lhsDiffShape, node->result->value->shape);
+                    TBResultNode* res1 = tb_runSessionNodeOnly(session, mult1);
+                    nda_reshape(res1->value, nda_copyShape(bop->lhs->result->value->shape));
+                    _tb_freeNodeDiff(bop->lhs);
+                    bop->lhs->diff = (res1);
+                    
+                    TBNode* mult2 = tb_newBinaryOpNode(TBBOT_ADD,
+                                                       _tb_convertResultNodeToNode(bop->rhs->diff),
+                                                       tb_newBinaryOpNode(TBBOT_MULT,
+                                                                          _tb_convertResultNodeToNode(node->diff),
+                                                                          tb_newBinaryOpNode(TBBOT_MULT,
+                                                                                             _tb_convertResultNodeToNode(node->result),
+                                                                                             tb_newUnaryOpNode(TBUOT_LOG,
+                                                                                                               _tb_convertResultNodeToNode(bop->lhs->result)
+                                                                                                               )
+                                                                                             )
+                                                                          )
+                                                       );
+                    
+                    mult2 = _tb_adaptDiffToShape(mult2, rhsDiffShape, node->result->value->shape);
+                    
+                    TBResultNode* res2 = tb_runSessionNodeOnly(session, mult2);
+                    nda_reshape(res2->value, nda_copyShape(bop->rhs->result->value->shape));
+                    _tb_freeNodeDiff(bop->rhs);
+                    bop->rhs->diff = (res2);
+                    
+                    tb_autogradNode(session, graph, bop->lhs);
+                    tb_autogradNode(session, graph, bop->rhs);
                     
                     break;
+                }
                 case TBBOT_DOT:
                     
                     break;
