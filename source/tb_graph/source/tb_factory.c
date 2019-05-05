@@ -142,7 +142,6 @@ TBNode* tb_newAxisBoundOpNode(TBAxisBoundOperationType type, TBNode* uhs, uint64
 	return node;
 }
 
-
 TBNode* tb_newTransposeOpNode(TBNode* uhs, uint64_t axis1, uint64_t axis2){
     TBTransposeOperation* top = calloc(1, sizeof(TBTransposeOperation));
     top->axis1 = axis1;
