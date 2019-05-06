@@ -289,7 +289,7 @@ static void _tb_autograd_bop_dot(struct TBGraphSession* session, TBGraph* graph,
                                        _tb_convertResultNodeToNode(bop->lhs->diff),
                                        tb_newBinaryOpNode(TBBOT_DOT,
                                                           _tb_convertResultNodeToNode(node->diff),
-                                                          tb_newTransposeOpNode(_tb_convertResultNodeToNode(bop->rhs->result), 0, 1)
+                                                          tb_newTransposeOpNode(_tb_convertResultNodeToNode(bop->rhs->result), 1, 0)
                                                           )
                                        );
     

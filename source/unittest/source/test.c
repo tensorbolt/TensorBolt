@@ -603,7 +603,7 @@ void test(){
     
     TBNode* n0 = tb_newConstantNode(x);
     TBNode* n1 = tb_newConstantNode(y);
-    TBNode* n2 = tb_newBinaryOpNode(TBBOT_POW, n0, n1);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_DOT, n1, n0);
     
     TBGraph* g = tb_newGraph("test", n2);
     
