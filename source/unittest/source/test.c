@@ -616,7 +616,7 @@ void test2(){
     
 }
 
-void test(){
+void test3(){
     
     NDArray* x = nda_linspace(1, 3, 1);
     x->data[0] = 1.0;
@@ -639,11 +639,30 @@ void test(){
     
 }
 
+void test(){
+    
+    NDArray* x = nda_linspace(1, 3, 3);
+    
+    TBNode* n0 = tb_newConstantNode(x);
+    TBNode* n2 = tb_newUnaryOpNode(TBUOT_SIGMOID, n0);
+    
+    TBGraph* g = tb_newGraph("test", n2);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    nda_debugValue(res->value);
+    
+    
+    tb_autogradGraph(NULL, g);
+    
+}
+
+
 int main(){
     printf("<TensorBolt & NDArray Unit Tests>\n\n");
     
     //runAllTests();
-    test2();
+    test();
     
     return 0;
 }
