@@ -134,6 +134,10 @@ static inline tb_float _sigmoid(tb_float x){
     return 1.0f/(1.0f+_exp(-x));
 }
 
+static inline tb_float _dxrelu(tb_float x){
+    return (x > 0)?1.0f:0.0f;
+}
+
 static inline tb_float _softplus(tb_float x){
     return _log(1.0f + _exp(x));
 }
@@ -974,6 +978,7 @@ TB_UNARY_OP_MAP(_tb_tanh, _tanh);
 TB_UNARY_OP_MAP(_tb_relu, _relu);
 TB_UNARY_OP_MAP(_tb_softplus, _softplus);
 TB_UNARY_OP_MAP(_tb_sigmoid, _sigmoid);
+TB_UNARY_OP_MAP(_tb_dxrelu, _dxrelu);
 
 TBResultNode* _tb_transpose(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs, TBTransposeOperation* top){
     NDArray* arr = uhs->value;

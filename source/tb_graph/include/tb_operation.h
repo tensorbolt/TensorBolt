@@ -78,6 +78,7 @@ typedef enum TBUnaryOperationType {
 	TBUOT_RELU,       /**< Element-wise RELU */
 	TBUOT_SOFTPLUS,   /**< Element-wise softplus */
 	TBUOT_SIGMOID,    /**< Element-wise sigmoid */
+    TBUOT_DXRELU,     /**< Element-wise relu derivative */
 } TBUnaryOperationType;
 
 #define MAX_UNARY_OPERATION TBUOT_SOFTPLUS

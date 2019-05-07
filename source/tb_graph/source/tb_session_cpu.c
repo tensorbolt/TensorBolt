@@ -189,6 +189,8 @@ static TBResultNode* _run_UnaryOperation(TBGraphSession* session, TBGraph* graph
             return _tb_softplus(session, graph, node, uhs);
         case TBUOT_SIGMOID:
             return _tb_sigmoid(session, graph, node, uhs);
+        case TBUOT_DXRELU:
+            return _tb_dxrelu(session, graph, node, uhs);
     }
 }
 

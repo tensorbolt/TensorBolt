@@ -227,6 +227,7 @@ TBResultNode* _tb_tanh(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBRes
 TBResultNode* _tb_relu(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 TBResultNode* _tb_softplus(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 TBResultNode* _tb_sigmoid(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
+TBResultNode* _tb_dxrelu(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 TBResultNode* _tb_elu(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResultNode* uhs);
 
 
