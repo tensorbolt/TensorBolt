@@ -61,8 +61,11 @@ static void _tb_freeNodeDiff(TBNode* node){
 }
 
 static TBNode* _tb_adaptDiffToShape(TBNode* diff_node, NDShape* diffShape, NDShape* valueShape){
-    uint64_t d = valueShape->rank - diffShape->rank;
-    uint64_t k = d;
+    int64_t d = (int64_t)valueShape->rank - (int64_t)diffShape->rank;
+    if (d < 0)
+        d = -d;
+    
+    uint64_t k = (int64_t)d;
     
     while(d > 0){
         diff_node =tb_newAxisBoundOpNode(TBABOT_SUM, diff_node, 0);
@@ -284,6 +287,7 @@ static void _tb_autograd_bop_dot(struct TBGraphSession* session, TBGraph* graph,
     TBBinaryOperation* bop = (TBBinaryOperation*)node->nodePtr;
     NDShape* lhsDiffShape = bop->lhs->diff->value->shape;
     NDShape* rhsDiffShape = bop->rhs->diff->value->shape;
+   
     
     TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD,
                                        _tb_convertResultNodeToNode(bop->lhs->diff),
@@ -302,7 +306,7 @@ static void _tb_autograd_bop_dot(struct TBGraphSession* session, TBGraph* graph,
     TBNode* mult2 = tb_newBinaryOpNode(TBBOT_ADD,
                                        _tb_convertResultNodeToNode(bop->rhs->diff),
                                        tb_newBinaryOpNode(TBBOT_DOT,
-                                                          tb_newTransposeOpNode(_tb_convertResultNodeToNode(bop->lhs->result), 0, 1),
+                                                          tb_newTransposeOpNode(_tb_convertResultNodeToNode(bop->lhs->result), 1, 0),
                                                           _tb_convertResultNodeToNode(node->diff)
                                                           )
                                        );

@@ -591,19 +591,20 @@ void runAllTests(){
 }
 
 
-void test(){
+void test2(){
     
     NDArray* x = nda_linspace(1, 3, 3);
     nda_reshape(x, nda_newShape(2, 3, 1));
     
     nda_debugValue(x);
     NDArray* y = nda_linspace(1, 3, 3);
+    nda_reshape(y, nda_newShape(2, 1, 3));
     nda_debugValue(y);
     
     
     TBNode* n0 = tb_newConstantNode(x);
     TBNode* n1 = tb_newConstantNode(y);
-    TBNode* n2 = tb_newBinaryOpNode(TBBOT_DOT, n1, n0);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_DOT, n0, n1);
     
     TBGraph* g = tb_newGraph("test", n2);
     
@@ -615,11 +616,34 @@ void test(){
     
 }
 
+void test(){
+    
+    NDArray* x = nda_linspace(1, 3, 1);
+    x->data[0] = 1.0;
+    nda_debugValue(x);
+    
+    NDArray* y = nda_linspace(1, 3, 3);
+    nda_reshape(y, nda_newShape(2, 3, 1));
+    nda_debugValue(y);
+    
+    
+    TBNode* n0 = tb_newConstantNode(x);
+    TBNode* n1 = tb_newConstantNode(y);
+    TBNode* n2 = tb_newBinaryOpNode(TBBOT_DOT, n0, tb_newTransposeOpNode(n1, 1, 0));
+    
+    TBGraph* g = tb_newGraph("test", n2);
+    
+    TBResultNode* res = tb_runSession(NULL, g, NULL);
+    
+    nda_debugValue(res->value);
+    
+}
+
 int main(){
     printf("<TensorBolt & NDArray Unit Tests>\n\n");
     
     //runAllTests();
-    test();
+    test2();
     
     return 0;
 }

@@ -342,8 +342,12 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
-    nda_debugShape(lhsShape);
-    nda_debugShape(rhsShape);
+    
+    printf("LHS RES:\n");
+    nda_debugValue(lhs->value);
+    printf("RHS RES:\n");
+    nda_debugValue(rhs->value);
+    
     
     ASSERT((lhsShape->rank <= 2) && (rhsShape->rank <= 2), "Cannot perform DOT product on shapes of ranks (%"PRIu64", %"PRIu64")", lhsShape->rank, rhsShape->rank);
     
@@ -379,11 +383,16 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
         res_arr = nda_alloc(nda_newShape(2, lhsRows, rhsCols));
     }
     
+    printf("output shape: \n");
+    nda_debugValue(res_arr);
+    
 #if TB_TYPE == TB_FLOAT
 #define GEMM cblas_sgemm
 #else
 #define GEMM cblas_dgemm
 #endif
+    
+    printf("lhsCols %lld, rhsCols: %lld, output cols: %lld\n", lhsCols, rhsCols, rhsCols);
     
     GEMM(CblasRowMajor,
          CblasNoTrans, CblasNoTrans, lhsRows, rhsCols, lhsCols,
@@ -391,6 +400,7 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
 
     
 #undef GEMM
+    printf("done!\n");
     return tb_newResultNode(res_arr);
 }
 
