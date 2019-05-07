@@ -609,11 +609,63 @@ void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* nod
             break;
        }
         case TBNT_AXIS_BOUND_OPERATION:
+        {
+            TBAxisBoundOperation* abop = (TBAxisBoundOperation*)node->nodePtr;
             
+            switch(abop->type){
+                    
+                case TBABOT_SUM:
+                    
+                    break;
+                case TBABOT_PRODUCT:
+                    
+                    break;
+                case TBABOT_MIN:
+                    
+                    break;
+                case TBABOT_MAX:
+                    
+                    break;
+                case TBABOT_MEAN:
+                    
+                    break;
+                case TBABOT_VARIANCE:
+                    
+                    break;
+                case TBABOT_SOFTMAX:
+                    
+                    break;
+                case TBABOT_ARGMIN:
+                    
+                    break;
+                case TBABOT_ARGMAX:
+                    
+                    break;
+            }
+            
+            tb_autogradNode(session, graph, abop->uhs);
             break;
+        }
         case TBNT_AXES_TRANSPOSE:
+        {
+            TBTransposeOperation* top = (TBTransposeOperation*)node->nodePtr;
+            NDShape* uhsDiffShape = top->uhs->diff->value->shape;
+            
+            TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD,
+                                               _tb_convertResultNodeToNode(top->uhs->diff),
+                                               tb_newTransposeOpNode(_tb_convertResultNodeToNode(node->diff), top->axis1, top->axis2)
+                                               );
+            
+            mult1 = _tb_adaptDiffToShape(mult1, uhsDiffShape, node->result->value->shape);
+            TBResultNode* res1 = tb_runSessionNodeOnly(session, mult1);
+            nda_reshape(res1->value, nda_copyShape(top->uhs->result->value->shape));
+            _tb_freeNodeDiff(top->uhs);
+            top->uhs->diff = (res1);
+            
+            tb_autogradNode(session, graph, top->uhs);
             
             break;
+        }
     }
     printf("node type = %d\n", node->type);
     printf("node value\n");
