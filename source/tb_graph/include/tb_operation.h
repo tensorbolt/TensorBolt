@@ -81,7 +81,7 @@ typedef enum TBUnaryOperationType {
     TBUOT_DXRELU,     /**< Element-wise relu derivative */
 } TBUnaryOperationType;
 
-#define MAX_UNARY_OPERATION TBUOT_SOFTPLUS
+#define MAX_UNARY_OPERATION TBUOT_DXRELU
 
 /**
  * \brief List of operations that apply mainly to a given axis of tensor
