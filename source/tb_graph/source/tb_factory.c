@@ -91,6 +91,11 @@ TBNode* tb_copyConstantNode(TBNode* con){
     return node;
 }
 
+TBResultNode* tb_copyResultNode(TBResultNode* res){
+    return tb_newResultNode(nda_copy(res->value));
+}
+
+
 TBNode* tb_newGraphNode(TBGraph* graph, TBGraphNodeParam** params){
     TBGraphNode * graphNode = calloc(1, sizeof(TBGraphNode));
     graphNode->graph = graph;
