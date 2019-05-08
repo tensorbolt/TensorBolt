@@ -224,7 +224,7 @@ MU_TEST(test_transpose_1d){
     uint64_t dims[] = {8, 1};
     uint64_t strides[] = {1, 8};
     
-    mu_assert_int_eq(1, res->value->shape->rank);
+    mu_assert_int_eq(2, res->value->shape->rank);
     ASSERT_SHAPE_EQ(res->value->shape, dims);
     ASSERT_SHAPE_STRIDE_EQ(res->value->shape, strides);
     tb_float gt[] = {0.        , 0.14285714, 0.28571429, 0.42857143, 0.57142857,
@@ -639,12 +639,12 @@ void test3(){
     
 }
 
-void test(){
+void test4(){
     
     NDArray* x = nda_linspace(1, 3, 3);
     
     TBNode* n0 = tb_newConstantNode(x);
-    TBNode* n2 = tb_newUnaryOpNode(TBUOT_SIGMOID, n0);
+    TBNode* n2 = tb_newUnaryOpNode(TBUOT_RELU, n0);
     
     TBGraph* g = tb_newGraph("test", n2);
     
@@ -655,14 +655,19 @@ void test(){
     
     tb_autogradGraph(NULL, g);
     
+}\
+
+void test(){
+    
+    
 }
 
 
 int main(){
     printf("<TensorBolt & NDArray Unit Tests>\n\n");
     
-    //runAllTests();
-    test();
+    runAllTests();
+    //test();
     
     return 0;
 }

@@ -66,5 +66,13 @@ void tb_autogradGraph(struct TBGraphSession* session, TBGraph* graph);
  */
 void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* node);
 
+/**
+ * \brief Computes derivative of each node on the sub-graph, initial derivative are passed in as parentDiff,
+ * which is the derivative of the parent node to the subgraph.
+ * \param session[in] The session on which the graph will be computed
+ * \param graph[in/out] The Graph to process
+ * \param parentDiff[in] parent node derivative to inherit as the initial graph diff.
+ */
+void tb_autogradNestedGraph(struct TBGraphSession* session, TBGraph* graph, TBResultNode* parentDiff);
 
 #endif

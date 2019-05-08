@@ -285,7 +285,7 @@ tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape){
     NDShape* shape = array->shape;
     
     uint64_t i = 0;
-    int diff = vshape->rank-shape->rank;
+    uint64_t diff = vshape->rank-shape->rank;
     uint64_t data_index = 0;
     
     for(; i < shape->rank; i++){
@@ -295,6 +295,8 @@ tb_float nda_vget(NDArray* array, uint64_t* index, NDShape* vshape){
         }
         data_index += id*shape->strides[i];
     }
+    
+    //nda_debugShape(shape);
     
     return array->data[data_index];
 }

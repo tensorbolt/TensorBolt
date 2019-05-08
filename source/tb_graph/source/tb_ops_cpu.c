@@ -346,13 +346,6 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
     NDShape* lhsShape = lhs->value->shape;
     NDShape* rhsShape = rhs->value->shape;
     
-    
-    printf("LHS RES:\n");
-    nda_debugValue(lhs->value);
-    printf("RHS RES:\n");
-    nda_debugValue(rhs->value);
-    
-    
     ASSERT((lhsShape->rank <= 2) && (rhsShape->rank <= 2), "Cannot perform DOT product on shapes of ranks (%"PRIu64", %"PRIu64")", lhsShape->rank, rhsShape->rank);
     
     uint64_t lhsRows = 1;
@@ -387,8 +380,6 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
         res_arr = nda_alloc(nda_newShape(2, lhsRows, rhsCols));
     }
     
-    printf("output shape: \n");
-    nda_debugValue(res_arr);
     
 #if TB_TYPE == TB_FLOAT
 #define GEMM cblas_sgemm
@@ -396,15 +387,12 @@ TBResultNode* _tb_dot(TBGraphSession* sess, TBGraph* graph, TBNode* node, TBResu
 #define GEMM cblas_dgemm
 #endif
     
-    printf("lhsCols %lld, rhsCols: %lld, output cols: %lld\n", lhsCols, rhsCols, rhsCols);
-    
     GEMM(CblasRowMajor,
          CblasNoTrans, CblasNoTrans, lhsRows, rhsCols, lhsCols,
          1.0, lhs->value->data, lhsCols, rhs->value->data, rhsCols, 0.0, res_arr->data, rhsCols);
 
     
 #undef GEMM
-    printf("done!\n");
     return tb_newResultNode(res_arr);
 }
 
@@ -985,8 +973,11 @@ TBResultNode* _tb_transpose(TBGraphSession* sess, TBGraph* graph, TBNode* node, 
     NDArray* arr_res = nda_copy(arr);
     NDShape* shape = arr_res->shape;
     if(shape->rank == 1){
-        //nda_reshape(arr_res, nda_newShape(2, 1, shape->dims[0]));
-        return tb_newResultNode(arr_res);
+        NDShape* newShape = nda_newShape(2, 1, shape->dims[0]);
+        nda_reshape(arr_res, newShape);
+        shape = newShape;
+        // TODO: free shape
+        //return tb_newResultNode(arr_res);
     }
     
     shape = arr_res->shape;
