@@ -516,6 +516,22 @@ static void _tb_autograd_uop_sigmoid(struct TBGraphSession* session, TBGraph* gr
     uop->uhs->diff = (res1);
 }
 
+static void _tb_autograd_abop_sum(struct TBGraphSession* session, TBGraph* graph, TBNode* node, TBAxisBoundOperation* abop){
+    NDShape* uhsDiffShape = abop->uhs->diff->value->shape;
+    
+    TBNode* mult1 = tb_newBinaryOpNode(TBBOT_ADD,
+                                       _tb_convertResultNodeToNode(abop->uhs->diff),
+                                       //tb_newTransposeOpNode(_tb_convertResultNodeToNode(node->diff), abop->axis, 1)
+                                       _tb_convertResultNodeToNode(node->diff)
+                                       );
+    
+    //mult1 = _tb_adaptDiffToShape(mult1, uhsDiffShape, node->result->value->shape);
+    TBResultNode* res1 = tb_runSessionNodeOnly(session, mult1);
+    nda_reshape(res1->value, nda_copyShape(abop->uhs->result->value->shape));
+    _tb_freeNodeDiff(abop->uhs);
+    abop->uhs->diff = (res1);
+}
+
 void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* node){
     switch(node->type){
             
@@ -530,9 +546,11 @@ void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* nod
             break;
         }
             
-        case TBNT_GRAPH:
-            // TODO
+        case TBNT_GRAPH:{
+            TBGraphNode* g = (TBGraphNode*)node->nodePtr;
+            tb_autogradNestedGraph(session, g, node->diff);
             break;
+        }
         case TBNT_BINARY_OPERATION:
         {
             TBBinaryOperation* bop = (TBBinaryOperation*)node->nodePtr;
@@ -615,7 +633,7 @@ void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* nod
             switch(abop->type){
                     
                 case TBABOT_SUM:
-                    
+                    //_tb_autograd_abop_sum(session, graph, node, abop);
                     break;
                 case TBABOT_PRODUCT:
                     
@@ -642,7 +660,8 @@ void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* nod
                     
                     break;
             }
-            
+            // TODO: my brain is boiling
+            exit(-1);
             tb_autogradNode(session, graph, abop->uhs);
             break;
         }
@@ -667,16 +686,22 @@ void tb_autogradNode(struct TBGraphSession* session, TBGraph* graph, TBNode* nod
             break;
         }
     }
-    printf("node type = %d\n", node->type);
+    /*printf("node type = %d\n", node->type);
     printf("node value\n");
     nda_debugValue(node->result->value);
     printf("node diff\n");
     nda_debugValue(node->diff->value);
     printf("----------\n\n");
+     */
 }
 
 
 void tb_autogradGraph(struct TBGraphSession* session, TBGraph* graph){
     graph->root->diff = tb_newResultNode(nda_ones(nda_copyShape(graph->root->result->value->shape)));
+    tb_autogradNode(session, graph, graph->root);
+}
+
+void tb_autogradNestedGraph(struct TBGraphSession* session, TBGraph* graph, TBResultNode* parentDiff){
+    graph->root->diff = tb_copyResultNode(parentDiff);
     tb_autogradNode(session, graph, graph->root);
 }
